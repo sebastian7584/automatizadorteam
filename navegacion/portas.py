@@ -11,12 +11,14 @@ import customtkinter as ctk
 
 class Portas:
 
-    def __init__(self,master, cambioTamaño):
+    def __init__(self,master, cambioTamaño, ventanaSuperior):
         self.errorCorreo=False
         self.cambioTamaño = cambioTamaño
+        self.ventanaSuperior = ventanaSuperior
         self.master = master
         self.label = label.Label().create_label(master, 'PORTABILIDADES', 0.2, 0.0, 0.5,0.2, letterSize= 25)
         self.ventana_informacion =  ventana_informacion.Ventana_informacion(master)
+        self.controlador =clickImage.ClickImage()
         self.submenu= sm.Sub_menu(master, 2, boton1=['ABRIR LISTA', self.abrir_excel], boton2=['START', self.ejecuccionHilo])
         self.master = master
         self.excel = excel.Excel_controller()
@@ -24,8 +26,8 @@ class Portas:
         self.checkbox2 = checkbox.Checkbox()
         self.checkbox_var = tk.BooleanVar()
         self.tropas = tk.BooleanVar()
-        self.checkbox_var_validacionImgs = tk.BooleanVar()
-        self.checkbox_validacionImgs =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Configurar Imagenes', self.on_checkbox_change_configuracion, self.checkbox_var_validacionImgs)
+        self.validacionImgs = tk.BooleanVar()
+        self.checkbox_validacionImgs =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Configurar Imagenes', self.on_checkbox_change_configuracion, self.validacionImgs)
         self.checkbox_festivo = checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Lunes Festivo', self.on_checkbox_change, self.checkbox_var)
         self.checkbox_tropas =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Tropas', self.on_checkbox_change_tropas, self.tropas)
         
@@ -42,10 +44,11 @@ class Portas:
             self.ventana_informacion.write('Cambiando modalidad a Estandar')
 
     def on_checkbox_change_configuracion(self):
-        if self.checkbox_var_validacionImgs.get():
+        if self.validacionImgs.get():
             self.ventana_informacion.write('Activando el modo Debug')
         else:
             self.ventana_informacion.write('Desactivando el modo Debug')
+        self.controlador.debug(self.validacionImgs.get(), self.ventanaSuperior)
     
     def abrir_excel(self):
         self.ventana_informacion.write('excel portabilidad abierto recuerde cerrar antes de iniciar')
@@ -61,7 +64,6 @@ class Portas:
         self.ventana_informacion.write('cambio tamaño')
         self.submenu.submenu.destroy()
         self.submenu= sm.Sub_menu(self.master, 1, boton1=['STOP', self.stop], agrandar=True)
-        self.controlador =clickImage.ClickImage()
         self.controlador.definirInformes(self.ventana_informacion)
         self.controlador.detener = False
         self.excel.leer_excel('src\portas\portabilidad.xlsx','CC CLIENTE')
@@ -80,6 +82,7 @@ class Portas:
         self.ventana_informacion.write('Restablece tamaño')
         self.submenu.submenu.destroy()
         self.submenu= sm.Sub_menu(self.master, 2, boton2=['START', self.ejecuccionHilo])
+        self.controlador.debugBool = False
         self.controlador.detener = True
     
     def seleccionOpcion(self):
@@ -245,7 +248,14 @@ class Portas:
         if intentoTelefono:
             self.rellenarTelefono()
         try:
-            self.controlador.wait('wait4', menos=True)
+            self.controlador.wait('wait3-2', menos=True)
+            intentoTelefono2 = True
+        except:
+            intentoTelefono2 = False
+        if intentoTelefono2:
+            self.rellenarTelefono2()
+        try:
+            self.controlador.wait('wait4', menos=True, confidence=0.90)
             intentoDocumento = True
         except:
             intentoDocumento = False
@@ -258,6 +268,13 @@ class Portas:
             intentoDireccion = False
         if intentoDireccion:
             self.rellenarDireccion()
+        try:
+            self.controlador.wait('wait5-2', menos=True)
+            intentoDireccion2 = True
+        except:
+            intentoDireccion2 = False
+        if intentoDireccion2:
+            self.rellenarDireccion2()
 
         self.opcion1()
         try:
@@ -269,7 +286,7 @@ class Portas:
             raise('Error Correo')
 
         self.controlador.wait('wait7', extra=True)
-        self.controlador.clickImg('paso17', 1, 'region17', desplazar=True, excel=[self.excel,self.i])
+        self.controlador.clickImg('paso17', 1, 'region17', desplazar=True, excel=[self.excel,self.i], confidenceImg=0.7, confidenceReg=0.7)
         self.controlador.write('a', enter=True)
         self.controlador.clickImg('paso18', 1, 'region18', excel=[self.excel,self.i])
         self.controlador.write('w', enter=True)
@@ -290,6 +307,10 @@ class Portas:
     def rellenarCorreo(self):
         self.controlador.clickImg('pasoBasica4', 1, 'regionBasica4', excel=[self.excel,self.i])
         self.controlador.write(self.correo, desplazarClick=True, correo=True)
+
+    def rellenarCorreo2(self):
+        self.controlador.clickImg('pasoBasica4-2', 1, 'regionBasica4-2', excel=[self.excel,self.i])
+        self.controlador.write(self.correo, desplazarClick=True, correo=True)
     
     def rellenarTelefono(self):
         self.controlador.clickImg('pasoTel1', 1, 'regionTel1', excel=[self.excel,self.i])
@@ -297,6 +318,14 @@ class Portas:
         self.controlador.clickImg('pasoTel2', 1, 'regionTel2', excel=[self.excel,self.i])
         self.controlador.write('604', enter=True)
         self.controlador.clickImg('pasoTel3', 1, 'regionTel3', excel=[self.excel,self.i])
+        self.controlador.write('6046679', enter=True, backspase=True)
+    
+    def rellenarTelefono2(self):
+        self.controlador.clickImg('pasoTel1-2', 1, 'regionTel1-2', excel=[self.excel,self.i])
+        self.controlador.write('fij', enter=True)
+        self.controlador.clickImg('pasoTel2-2', 1, 'regionTel2-2', excel=[self.excel,self.i])
+        self.controlador.write('604', enter=True)
+        self.controlador.clickImg('pasoTel3-2', 1, 'regionTel3-2', excel=[self.excel,self.i])
         self.controlador.write('6046679', enter=True, backspase=True)
     
     def rellenarDocumento(self):

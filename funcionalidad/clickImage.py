@@ -3,16 +3,23 @@ import random
 import time
 import pyperclip
 from datetime import datetime, timedelta
-from funcionalidad import  excel
+from PIL import Image as Im
+from PIL import ImageTk as ImTk
+from tkinter import PhotoImage, Tk, Label
 
 
 class ClickImage:
 
     def __init__(self):
         self.detener = False
+        self.debug_value = False
     
     def definirInformes(self, informes):
         self.informes = informes
+    
+    def debug(self, debug, ventanaSuperior):
+        self.debug_value = debug
+        self.ventanaSuperior = ventanaSuperior
 
     def contadorPrueba(self):
         contador = 0
@@ -22,15 +29,15 @@ class ClickImage:
             time.sleep(1)
             contador += 1
 
-    def clickImg(self, img, tiempo, region=None, desplazar=False, seleccionar=False, copiar=False, extra=False, excel=None):
+    def clickImg(self, img, tiempo, region=None, desplazar=False, seleccionar=False, copiar=False, extra=False, excel=None, confidenceImg=0.8, confidenceReg=0.8):
         if self.detener: raise('Detener programa')
-        self.wait(img, extra=extra, excel=excel)
-        img2 = f'src\portas\imgs\{img}.png'
         if region is not None:
             self.wait(region, extra=extra, excel=excel)
             region = f'src\portas\imgs\{region}.png'
-            region = pyautogui.locateOnScreen(region, confidence=0.8)
-        element_location = pyautogui.locateOnScreen(img2, confidence=0.8, region=region)
+            region = pyautogui.locateOnScreen(region, confidence=confidenceReg)
+        self.wait(img, extra=extra, excel=excel)
+        img2 = f'src\portas\imgs\{img}.png'
+        element_location = pyautogui.locateOnScreen(img2, confidence=confidenceImg, region=region)
         if element_location is None:
             print(f'no esta imagen {img}')
             self.informes.write(f'problema con imagen {img}')
@@ -126,13 +133,25 @@ class ClickImage:
     def wait(self, img, extra=False, menos =False , confidence= 0.8, excel=None):
         contador = 0
         img2 = f'src\portas\imgs\{img}.png'
+        self.rutaImg = img2
         continuar = True
+        self.debugBool = True
         timeExtra = 0
         timeMenos = 0
         if extra:
             timeExtra = 200
         if menos:
             timeMenos = -50
+
+        if self.debug_value:
+            self.subventana = self.ventanaSuperior(img2, self.pantallazo, self.nextDebug)
+            contador3 = 1
+            while(self.debugBool):
+                pass
+                # print(contador3)
+                # contador3 += 1
+
+
         while (continuar):
             # busca una imagen específica en la pantalla y devuelve sus coordenadas
             element_location = pyautogui.locateOnScreen(img2, confidence=confidence)
@@ -165,3 +184,31 @@ class ClickImage:
 
     def quitarMouse(self):
          pyautogui.moveRel(-1800,-300, 1)
+        
+    def nextDebug(self):
+        self.subventana.destroy()
+        self.debugBool = False
+    
+    def pantallazo(self):
+        self.posiciones = {}
+        def capture_area(event):
+            self.posiciones[f'{self.contadorClicks}'] = [self.tomarPantalla.winfo_pointerx(),self.tomarPantalla.winfo_pointery()]
+            self.contadorClicks +=1
+            print(self.posiciones)
+            if self.contadorClicks >2:
+                self.tomarPantalla.destroy()
+                self.tomarPantalla.quit()
+        screen_width, screen_height = pyautogui.size()
+        screenshot = pyautogui.screenshot()
+        self.contadorClicks = 1
+        self.tomarPantalla = Tk()
+        self.tomarPantalla.attributes("-transparentcolor", "white")
+        self.tomarPantalla.attributes("-alpha", 0.3)
+        self.tomarPantalla.overrideredirect(True)
+        screen_width, screen_height = pyautogui.size()
+        self.tomarPantalla.geometry(f'{screen_width}x{screen_height}')
+        self.tomarPantalla.bind("<Button-1>", capture_area)
+        self.tomarPantalla.mainloop()
+        preview = screenshot.crop((self.posiciones['1'][0], self.posiciones['1'][1], self.posiciones['2'][0], self.posiciones['2'][1]))
+        preview.show()
+        preview.save(self.rutaImg)

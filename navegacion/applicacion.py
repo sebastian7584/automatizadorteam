@@ -2,6 +2,7 @@ from tkinter import Canvas
 from recursos import colors, botones, create_frame
 from navegacion import activar_lineas, compras, equipos, legalizador, portas, preactivador
 import customtkinter as ctk
+from PIL import ImageTk, Image
 
 
 class App:
@@ -118,7 +119,7 @@ class App:
 
     def portas_frame(self):
         self.button_portas.configure(fg_color=self.colors.team, text_color='white')
-        portas.Portas(self.interfas_frame, self.cambiarTamaño)
+        portas.Portas(self.interfas_frame, self.cambiarTamaño, self.ventana_superior)
         self.screen = 'auditoria_frame'
 
     # def comercial_frame(self):
@@ -147,3 +148,20 @@ class App:
 
     def start(self):
         self.root.mainloop()
+    
+    def ventana_superior(self, image, func1, func2):
+        subventana = ctk.CTkToplevel()
+        # subventana.overrideredirect(True)
+        imagen = Image.open(image)
+        # imagen = imagen.resize((300, 300))
+        imagen_tk = ImageTk.PhotoImage(imagen)
+        etiqueta_imagen = ctk.CTkLabel(subventana, image=imagen_tk, text='')
+        etiqueta_imagen.pack()
+        ctk.CTkLabel(subventana, text='').pack()
+        boton1 = self.button.create_button(subventana, "Pantallazo", 0, 0, 0, 0, func1, pack=True, teamColor=True)
+        ctk.CTkLabel(subventana, text='').pack()
+        boton2 = self.button.create_button(subventana, "Continuar", 0, 0, 0, 0, func2, pack=True, teamColor=True)
+        ctk.CTkLabel(subventana, text='').pack()
+        return subventana
+        
+
