@@ -70,6 +70,25 @@ class Web_Controller:
                         raise('Excedio el numero de intentos')
         return execute
     
+    def validateShort(funcion):
+        def execute(self,*args, **kwargs):
+            proof = True
+            contador = 1
+            while proof:
+                try:
+                    data = funcion(self,*args, **kwargs)
+                    proof= False
+                    time.sleep(int(sleep))
+                    return data
+                except:
+                    if contador < 10:
+                        print(f'intento numero {contador}')
+                        time.sleep(1)
+                        contador +=1
+                    else:
+                        raise('Excedio el numero de intentos')
+        return execute
+    
     def openChrome(self):
         service = ChromeService('chromedriver')
         options =  webdriver.ChromeOptions()
@@ -111,6 +130,15 @@ class Web_Controller:
         else: find =None
         if find is not None:
             find.click()
+    
+    @validateShort
+    def readShort(self, byStr, by='xpath'):
+        if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
+        elif by == "id": find = self.browser.find_element_by_id(byStr)
+        elif by == "name": find = self.browser.find_element_by_name(byStr)
+        if find is not None:
+            return find.text
+        else: return "none"
     
     @validate
     def read(self, byStr, by='xpath'):
@@ -194,3 +222,5 @@ class Web_Controller:
     
     def cerrar(self):
         self.browser.quit()
+    
+    

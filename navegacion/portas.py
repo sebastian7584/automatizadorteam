@@ -27,9 +27,9 @@ class Portas:
         self.checkbox_var = tk.BooleanVar()
         self.tropas = tk.BooleanVar()
         self.validacionImgs = tk.BooleanVar()
-        self.checkbox_validacionImgs =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Configurar Imagenes', self.on_checkbox_change_configuracion, self.validacionImgs)
-        self.checkbox_festivo = checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Lunes Festivo', self.on_checkbox_change, self.checkbox_var)
-        self.checkbox_tropas =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Tropas', self.on_checkbox_change_tropas, self.tropas)
+        self.checkbox_validacionImgs =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Configurar Imagenes.', self.on_checkbox_change_configuracion, self.validacionImgs)
+        self.checkbox_festivo = checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Lunes Festivo.', self.on_checkbox_change, self.checkbox_var)
+        self.checkbox_tropas =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Tropas.', self.on_checkbox_change_tropas, self.tropas)
         
     def on_checkbox_change(self):
         if self.checkbox_var.get():
@@ -151,6 +151,7 @@ class Portas:
     
     def crearVariablesExcel(self,i):
         self.idCliente = str(self.excel.excel['CC CLIENTE'][i])
+        self.fechaExpedicion = str(self.excel.excel['FECHA EXPEDICION'][i])
         self.apellido = str(self.excel.excel['APELLIDO CLIENTE'][i])
         self.idVendedor = str(self.excel.excel['CEDULA VENDEDOR'][i])
         self.min = str(self.excel.excel['NUMERO MOVIL'][i])
@@ -165,12 +166,19 @@ class Portas:
     def rellenoPrimerFormulario(self):
         self.controlador.clickImg('paso4',1, region='region4', desplazar=True, excel=[self.excel,self.i])
         self.controlador.write(self.tipo, enter=True)
-        self.controlador.clickImg('paso5',1, region='region5', excel=[self.excel,self.i])
+        self.controlador.clickImg('paso5',1, region='region5', excel=[self.excel,self.i], confidenceImg=0.9)
         self.controlador.write(self.idCliente)
         self.controlador.clickImg('paso6',1, region='region6', excel=[self.excel,self.i])
         self.controlador.write(self.apellido)
         self.controlador.clickImg('paso7',1, region='region7', excel=[self.excel,self.i])
         self.controlador.write(self.idVendedor)
+        try:
+            self.controlador.wait('regionExpedicion', menos=True, confidence=0.90)
+            self.controlador.clickImg('pasoExpedicion',1, region='regionExpedicion', seleccionar=True, excel=[self.excel,self.i])
+            self.controlador.write(self.fechaExpedicion)
+        except:
+            pass
+        
         self.controlador.clickImg('paso8',1, region='region8', excel=[self.excel,self.i])
         self.controlador.write(self.min)
         self.controlador.scroll(-600)
@@ -218,7 +226,12 @@ class Portas:
         self.controlador.clickImg('paso14',1, excel=[self.excel,self.i])
         self.controlador.wait('wait1')
         self.controlador.scroll(-300)
-        self.controlador.quitarMouse()
+        self.ventana_informacion.write('moviendo mouse')
+        try:
+            self.controlador.quitarMouse()
+        except:
+            pass
+        self.ventana_informacion.write('movido')
         try:
             self.controlador.wait('wait2', menos=True, confidence=0.90)
             intentoBasico = True
@@ -241,6 +254,7 @@ class Portas:
         if intentoCorreo:
             self.rellenarCorreo()
         try:
+            # self.controlador.scroll(-300)
             self.controlador.wait('wait3', menos=True)
             intentoTelefono = True
         except:
@@ -291,6 +305,7 @@ class Portas:
         self.controlador.clickImg('paso18', 1, 'region18', excel=[self.excel,self.i])
         self.controlador.write('w', enter=True)
         self.controlador.clickImg('paso19', 1, excel=[self.excel,self.i])
+        self.controlador.scroll(-600)
         self.controlador.clickImg('paso20', 1, excel=[self.excel,self.i])
         self.controlador.clickImg('paso21', 1, excel=[self.excel,self.i])
     
@@ -345,6 +360,19 @@ class Portas:
         self.controlador.clickImg('pasoDireccion4', 1, 'regionDireccion4', excel=[self.excel,self.i])
         self.controlador.write('medel', enter=True)
         self.controlador.clickImg('pasoDireccion5', 1, 'regionDireccion5', excel=[self.excel,self.i])
+        self.controlador.write('central', enter=True, desplazarClick=True)
+    
+    def rellenarDireccion2(self):
+        self.controlador.clickImg('pasoDireccion1-2', 1, 'regionDireccion1-2', excel=[self.excel,self.i])
+        self.controlador.write('otras', enter=True)
+        time.sleep(3)
+        self.controlador.clickImg('pasoDireccion2-2', 1, 'regionDireccion2-2', excel=[self.excel,self.i])
+        self.controlador.write('centro', enter=True, desplazarClick=True)
+        self.controlador.clickImg('pasoDireccion3-2', 1, 'regionDireccion3-2', excel=[self.excel,self.i])
+        self.controlador.write('ant', enter=True)
+        self.controlador.clickImg('pasoDireccion4-2', 1, 'regionDireccion4-2', excel=[self.excel,self.i])
+        self.controlador.write('medel', enter=True)
+        self.controlador.clickImg('pasoDireccion5-2', 1, 'regionDireccion5-2', excel=[self.excel,self.i])
         self.controlador.write('central', enter=True, desplazarClick=True)
     
 

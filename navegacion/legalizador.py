@@ -21,13 +21,21 @@ class Legalizador:
         self.legalizador = ''
         self.time = tk.StringVar()
         self.time.set('0')
-        self.titulo = label.Label().create_label(self.menu.submenu, 'Intervalos', 0.0, 0.7, 0.5,0.2, letterSize= 16)
+        self.titulo = label.Label().create_label(self.menu.submenu, 'Intervalos', 0.0, 0.65, 0.5,0.2, letterSize= 16)
+        self.titulo2 = label.Label().create_label(self.menu.submenu, 'Correo', 0.25, 0.83, 0.5,0.05, letterSize= 16)
         input_widget = ctk.CTkEntry(self.menu.submenu, textvariable=self.time)
-        input_widget.place(relx=0.5, rely=0.78, relheight=0.05, relwidth=0.2)
+        input_widget.place(relx=0.5, rely=0.73, relheight=0.05, relwidth=0.2)
         boton = botones.Buttons()
         color = colors.Colors()
-        self.okBotton = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.78, 0.15, 0.05, self.cambioIntervalo)
+        self.okBotton = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.73, 0.15, 0.05, self.cambioIntervalo)
         self.okBotton.configure(fg_color= color.team, text_color= 'white')
+        self.correo = 'acruz@teamcomunicaciones.com'
+        self.correoEdit = tk.StringVar()
+        self.correoEdit.set(self.correo) 
+        input_widget2 = ctk.CTkEntry(self.menu.submenu, textvariable=self.correoEdit)
+        input_widget2.place(relx=0.15, rely=0.89, relheight=0.05, relwidth=0.7)
+        self.okBotton2 = boton.create_button(self.menu.submenu, 'confirmar', 0.3, 0.95, 0.40, 0.05, self.cambioCorreo)
+        self.okBotton2.configure(fg_color= color.team, text_color= 'white')
         
     
     def abrir_excel(self):
@@ -38,6 +46,10 @@ class Legalizador:
     def cambioIntervalo(self):
         self.legalizador.actualizarIntervalo(self.time.get())
         self.ventana_informacion.write(f'intervalo {self.time.get()} segundos')
+
+    def cambioCorreo(self):
+        self.correo = self.correoEdit.get()
+        self.ventana_informacion.write(f'Correo actualizado por {self.correo}')
     
     def abrir_pagina(self):
         self.ventana_informacion.write('Navegador abierto')
@@ -61,7 +73,7 @@ class Legalizador:
         self.contador = 0
 
         while self.ciclo:
-            if self.contador > self.excel.cantidad:
+            if self.contador == self.excel.cantidad:
                 ciclo = False
             else:
                 try:
@@ -84,12 +96,14 @@ class Legalizador:
         self.nombre = str(self.excel.excel['nombre'][self.contador])
         self.apellido = str(self.excel.excel['apellido'][self.contador])
         self.cedula = str(self.excel.excel['cedula'][self.contador])
+        self.tipoDoc = str(self.excel.excel['tipodoc'][self.contador])
+            
 
         primerFormulario = [
             ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', self.cedulaVendedor],
             ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[2]/div/input', self.min],
-            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[1]/div/input', self.imei],
-            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[2]/div/input', self.iccid],
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[3]/div[1]/div/input', self.imei],
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[3]/div[2]/div/input', self.iccid],
         ]
 
         if self.excel.excel['tipodoc'][self.contador].lower().replace(" ","") == 'nit':
@@ -101,11 +115,29 @@ class Legalizador:
             primerFormulario.append(['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[1]/div[3]/div/input', self.apellido])
             self.poliedro.rellenoFormulario(6, primerFormulario)
         self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[5]/input[1]')
+        options = [
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[6]/div/span'],
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/div[2]/div[1]/div/div/div'],
+        ]
+        functionList = [
+            self.validado,
+            self.errorKitRegistrado,
+        ]
+        self.poliedro.detectOption(options, functionList, NoneFunc=self.errorGeneral)
+
+
+    def validado(self):
         validado = self.legalizador.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[6]/div/span')
         if 'Validación Correcta' in validado: pass
         else: raise('invalido')
         time.sleep(0.5)
         self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[3]')
+        options = [
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/ul/li']
+        ]
+        self.poliedro.detectOption(options,[self.errorConsultaDemografica], NoneFunc=self.terminarValidado)
+
+    def terminarValidado(self):
         self.poliedro.saludo()
         if self.excel.excel['tipodoc'][self.contador].lower().replace(" ","") == 'nit':
             self.poliedro.tipoDoc('nit')
@@ -114,7 +146,7 @@ class Legalizador:
             self.poliedro.rellenoApellido(self.apellido)
         self.poliedro.rellenoNombre(self.nombre)
         self.poliedro.rellenoCedula(self.cedula)
-        self.poliedro.correo()
+        self.poliedro.correo(self.correo)
         self.poliedro.rellenoNumero()
         self.poliedro.rellenoDireccion()
         self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[5]/input[2]')
@@ -123,10 +155,24 @@ class Legalizador:
         self.ventana_informacion.write(f'Legalizacion exitosa de {self.min}')
         self.excel.guardar(self.contador, 'Mensaje', 'legalizada')
         self.poliedro.reinicio()
-        # self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[1]')
-        # self.poliedro.seleccionAcceso('362')
+        self.contador += 1
+    
+    def errorConsultaDemografica(self):
+        validado = self.legalizador.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/ul/li')
+        self.ventana_informacion.write(f'{self.min} {validado}')
+        self.excel.guardar(self.contador, 'Mensaje', validado)
+        self.poliedro.reinicio()
+        self.contador += 1
+    
+    def errorKitRegistrado(self):
+        validado = self.legalizador.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/div[2]/div[1]/div/div/div')
+        self.ventana_informacion.write(f'{self.min} {validado}')
+        self.excel.guardar(self.contador, 'Mensaje', validado)
+        self.poliedro.reinicio()
         self.contador += 1
 
+    def errorGeneral(self):
+        raise('error general')
 
 
 

@@ -26,6 +26,23 @@ class Poliedro:
             if len(lista[i]) == 2: lista[i].append('xpath')
             self.browser.insert(lista[i][0],lista[i][1],lista[i][2])
     
+    def detectOption(self, options, functions, NoneFunc = None):
+        self.selectOption = None
+        for i in range (len(options)):
+            if len(options[i]) == 1: options[i].append('xpath')
+            try:
+                self.browser.readShort(options[i][0], options[i][1])
+                self.selectOption = i
+                break
+            except:
+                pass
+        if self.selectOption is not None:
+            func = functions[self.selectOption]
+            func()
+        else:
+            if NoneFunc is not None:
+                NoneFunc()
+    
     def reinicio(self):
         self.browser.click('/html/body/div/div[2]/section/div/div[1]/aside/nav/div[2]/ul/li[10]/a')
         self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[13]/td[1]/a')
@@ -36,13 +53,13 @@ class Poliedro:
         self.browser.write('/html/body/span/span/span[1]/input', 'r')
         self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
 
-    def correo(self):
-        self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[4]/div/input','acruz@teamcomunicaciones.com')
+    def correo(self, correo):
+        self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[4]/div/input',correo)
 
-    def tipoDoc(self, tipo):
-        tipoDoc = self.browser.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[1]/div/span/span[1]/span/span[1]')
+    def tipoDoc(self, tipo, xpath='/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[1]/div/span/span[1]/span/span[1]'):
+        tipoDoc = self.browser.read(xpath)
         if 'Seleccione' in tipoDoc:
-            self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[1]/div/span/span[1]/span/span[1]')
+            self.browser.click(xpath)
             self.browser.write('/html/body/span/span/span[1]/input', tipo)
             self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
 

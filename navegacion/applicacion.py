@@ -104,12 +104,12 @@ class App:
 
     def equipos_frame(self):
         self.button_equipos.configure(fg_color=self.colors.team, text_color='white')
-        equipos.Equipos(self.interfas_frame)
+        equipos.Equipos(self.interfas_frame, self.on_of_panel)
         self.screen = 'contabilidad_frame'
 
     def preactivador_frame(self):
         self.button_preactivador.configure(fg_color=self.colors.team, text_color='white')
-        preactivador.Preactivador(self.interfas_frame)
+        preactivador.Preactivador(self.interfas_frame, self.on_of_panel)
         self.screen = 'comisiones_frame'
 
     def legalizador_frame(self):
