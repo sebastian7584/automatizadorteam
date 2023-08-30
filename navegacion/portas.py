@@ -1,6 +1,6 @@
 from navegacion import sub_menu as sm, ventana_informacion 
 from funcionalidad import  web_controller, poliedro, excel, clickImage
-from recursos import botones, label, checkbox
+from recursos import botones, label, checkbox, colors
 import threading
 from subprocess import Popen
 import pyperclip
@@ -11,23 +11,27 @@ import customtkinter as ctk
 
 class Portas:
 
-    def __init__(self,master, cambioTamaño, ventanaSuperior):
+    def __init__(self, master, on_of):
+        self.on_of = on_of
         self.errorCorreo=False
-        self.cambioTamaño = cambioTamaño
-        self.ventanaSuperior = ventanaSuperior
         self.master = master
+        self.poliedro = poliedro.Poliedro()
+        self.excel = excel.Excel_controller()
+        self.link= 'https://poliedrodist.comcel.com.co/'
+        self.link2='https://poliedrodist.comcel.com.co/activaciones/http/REINGENIERIA/pagDispatcherEntradaModernizacion.asp?Site=1'
         self.label = label.Label().create_label(master, 'PORTABILIDADES', 0.2, 0.0, 0.5,0.2, letterSize= 25)
         self.ventana_informacion =  ventana_informacion.Ventana_informacion(master)
-        self.controlador =clickImage.ClickImage()
-        self.submenu= sm.Sub_menu(master, 2, boton1=['ABRIR LISTA', self.abrir_excel], boton2=['START', self.ejecuccionHilo])
+        self.submenu= sm.Sub_menu(master, 3, boton1=['ABRIR LISTA', self.abrir_excel], boton2=['ABRIR PAGINA', self.abrir_pagina], boton3=['START', self.ejecuccionHilo])
+        self.time = tk.StringVar()
+        self.time.set('1.5')
         self.master = master
-        self.excel = excel.Excel_controller()
+        
         self.checkbox = checkbox.Checkbox()
         self.checkbox2 = checkbox.Checkbox()
         self.checkbox_var = tk.BooleanVar()
         self.tropas = tk.BooleanVar()
         self.validacionImgs = tk.BooleanVar()
-        self.checkbox_validacionImgs =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Configurar Imagenes.', self.on_checkbox_change_configuracion, self.validacionImgs)
+        # self.checkbox_validacionImgs =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Configurar Imagenes.', self.on_checkbox_change_configuracion, self.validacionImgs)
         self.checkbox_festivo = checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Lunes Festivo.', self.on_checkbox_change, self.checkbox_var)
         self.checkbox_tropas =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Tropas.', self.on_checkbox_change_tropas, self.tropas)
         
@@ -42,113 +46,80 @@ class Portas:
             self.ventana_informacion.write('Cambiando modalidad a Tropas')
         else:
             self.ventana_informacion.write('Cambiando modalidad a Estandar')
-
-    def on_checkbox_change_configuracion(self):
-        if self.validacionImgs.get():
-            self.ventana_informacion.write('Activando el modo Debug')
-        else:
-            self.ventana_informacion.write('Desactivando el modo Debug')
-        self.controlador.debug(self.validacionImgs.get(), self.ventanaSuperior)
+        self.poliedro.manejoTropas(self.tropas.get())
+   
     
     def abrir_excel(self):
         self.ventana_informacion.write('excel portabilidad abierto recuerde cerrar antes de iniciar')
         p = Popen("src\portas\openExcel.bat")
         stdout, stderr = p.communicate()
+
+    def cambioIntervalo(self):
+        min = 1.5
+        if float(self.time.get()) < min:
+            self.time.set(str(min))
+            self.ventana_informacion.write(f'intervalo no puede ser menor a {min} segundos')
+        self.portas.actualizarIntervalo(self.time.get())
+        self.ventana_informacion.write(f'intervalo {self.time.get()} segundos')
+    
+    def abrir_pagina(self):
+        self.ventana_informacion.write('Navegador abierto')
+        class Abrir_pagina1(web_controller.Web_Controller):pass
+        self.portas = Abrir_pagina1(float(self.time.get()))
+        self.portas.openEdge()
+        self.portas.selectPage(self.link)
+        self.titulo = label.Label().create_label(self.submenu.submenu, 'Intervalos', 0.0, 0.65, 0.5,0.2, letterSize= 16)
+        input_widget = ctk.CTkEntry(self.submenu.submenu, textvariable=self.time)
+        input_widget.place(relx=0.5, rely=0.73, relheight=0.05, relwidth=0.2)
+        boton = botones.Buttons()
+        color = colors.Colors()
+        self.okBotton = boton.create_button(self.submenu.submenu, 'OK', 0.7, 0.73, 0.15, 0.05, self.cambioIntervalo)
+        self.okBotton.configure(fg_color= color.team, text_color= 'white')
     
     def ejecuccionHilo(self):
-        hilo_legalizador = threading.Thread(target=self.ejecuccion)
-        hilo_legalizador.start()
+        hilo_portas = threading.Thread(target=self.ejecuccion)
+        hilo_portas.start()
     
     def ejecuccion(self):
-        self.cambioTamaño(False)
-        self.ventana_informacion.write('cambio tamaño')
-        self.submenu.submenu.destroy()
-        self.submenu= sm.Sub_menu(self.master, 1, boton1=['STOP', self.stop], agrandar=True)
-        self.controlador.definirInformes(self.ventana_informacion)
-        self.controlador.detener = False
+        self.on_of(False)
+        self.ventana_informacion.write('Empezando ejecuccion')
+        self.poliedro.definirBrowser(self.portas)
+        self.poliedro.seleccionAcceso('290')
         self.excel.leer_excel('src\portas\portabilidad.xlsx','CC CLIENTE')
         self.excel.quitarFormatoCientifico('SERIAL')
-        self.seleccionOpcion()
+        self.ciclo = True
+        self.contador = 0
+        self.iteraciones()
+        self.ventana_informacion.write('Proceso terminado')
+        self.on_of(True)
         
 
-    def copiarMin(self, i):
-        self.controlador.copiarMin('referenciaMin')
-        self.msisdn = pyperclip.paste()
-        print(self.msisdn)
-        self.excel.guardar(i,'MSISDN',self.msisdn, destino='src\portas\portabilidad.xlsx')
-    
-    def stop(self):
-        self.cambioTamaño(True)
-        self.ventana_informacion.write('Restablece tamaño')
-        self.submenu.submenu.destroy()
-        self.submenu= sm.Sub_menu(self.master, 2, boton2=['START', self.ejecuccionHilo])
-        self.controlador.debugBool = False
-        self.controlador.detener = True
-    
-    def seleccionOpcion(self):
-        self.ventana_informacion.write(f'Iniciando ejecución')
-        self.ingresoOpcionRapida()
-        for i in range(self.excel.cantidad):
-            self.i = i
-            try:
-                self.ventana_informacion.write(f'operacion {i+1} de {self.excel.cantidad}')
-                self.crearVariablesExcel(i)
-                start_time = time.time()
-                self.rellenoPrimerFormulario()
-                self.copiarMin(i)
-                elapsed_time = time.time() - start_time
-                self.excel.guardar(i,'MENSAJE',str(round(elapsed_time,2)), destino='src\portas\portabilidad.xlsx')
-                self.reinicio()
-            except:
-                if self.controlador.detener:
-                    pass
-                else:
-                    self.ventana_informacion.write(f'Reiniciando para intentar con la siguiente')
-                    if self.errorCorreo:
-                        self.excel.guardar(i,'MENSAJE','Error Correo', destino='src\portas\portabilidad.xlsx')
-                    else:
-                        self.excel.guardar(i,'MENSAJE','error', destino='src\portas\portabilidad.xlsx')
-                    self.errorCorreo = False
-                    self.reinicio()
-    
-    def reinicio(self):
-        try:
-            self.controlador.scroll(800)
-            self.controlador.clickImg('reinicio1',1, extra=True, excel=[self.excel,self.i])
-            if self.tropas.get():
-                pass
+
+    def iteraciones(self):
+
+        while self.ciclo:
+            if self.contador == self.excel.cantidad:
+                self.ciclo = False
             else:
-                self.controlador.clickImg('reinicio2',1, extra=True, excel=[self.excel,self.i])
-            self.ingresoOpcionRapida()
-        except:
-            try:
-                self.controlador.clickImg('reinicio1',1, extra=True, excel=[self.excel,self.i])
-            except:
-                pass
-            try:
-                if self.tropas.get():
-                    pass
-                else:
-                    self.controlador.clickImg('reinicio2',1, extra=True, excel=[self.excel,self.i])
-            except:
-                pass
-            try:
-                self.ingresoOpcionRapida()
-            except:
-                pass
+                try:
+                    self.ventana_informacion.write(f'Portando numero {self.contador+1} de {self.excel.cantidad}')
+                    self.crearVariablesExcel(self.contador)
+                    if str(self.msisdn) != 'nan':
+                        self.ventana_informacion.write(f'Portabilidad ya realizada o con error ya detectado')
+                        self.contador += 1
+                    else:
+                        self.start_time = time.time()
+                        self.rellenoPrimerFormulario()
+                    # self.copiarMin(i)
+                    # elapsed_time = time.time() - start_time
+                    # self.excel.guardar(i,'MENSAJE',str(round(elapsed_time,2)), destino='src\portas\portabilidad.xlsx')
+                    # self.reinicio()
+                except:
+                    self.ventana_informacion.write(f'Siguiente por error en portabilidad de {self.min}')
+                    self.excel.guardar(self.contador, 'MENSAJE', 'error')
+                    self.poliedro.reinicio()
+                    self.contador += 1
 
-    
-
-    def ingresoOpcionRapida(self):
-        if self.tropas.get():
-            self.controlador.clickImg('tropas1', 1)
-            self.controlador.clickImg('tropas2', 1)
-        else:
-            self.controlador.clickImg('paso1', 1)
-            self.controlador.clickImg('paso2', 1)
-        self.controlador.clickImg('paso3', 1, region='region3')
-        self.controlador.write('290', enter=True)
-    
     def crearVariablesExcel(self,i):
         self.idCliente = str(self.excel.excel['CC CLIENTE'][i])
         self.fechaExpedicion = str(self.excel.excel['FECHA EXPEDICION'][i])
@@ -158,41 +129,32 @@ class Portas:
         self.iccid = str(self.excel.excel['SERIAL'][i])[-12:]
         self.iccid2 = str(self.excel.excel['SERIAL2'][i])[-12:]
         self.nip = str(self.excel.excel['NIP'][i])
+        tamañoNip = len(self.nip)
+        while (tamañoNip<5):
+            self.nip = '0' + str(self.nip)
+            tamañoNip += 1
         self.nombre = str(self.excel.excel['NOMBRE CLIENTE'][i])
         self.correo = str(self.excel.excel['CORREO'][i])
         self.tipoLinea = str(self.excel.excel['TIPO DE LINEA'][i])
         self.tipo = 'cedula'
+        self.msisdn = str(self.excel.excel['MSISDN'][i])
 
     def rellenoPrimerFormulario(self):
-        self.controlador.clickImg('paso4',1, region='region4', desplazar=True, excel=[self.excel,self.i])
-        self.controlador.write(self.tipo, enter=True)
-        self.controlador.clickImg('paso5',1, region='region5', excel=[self.excel,self.i], confidenceImg=0.9)
-        self.controlador.write(self.idCliente)
-        self.controlador.clickImg('paso6',1, region='region6', excel=[self.excel,self.i])
-        self.controlador.write(self.apellido)
-        self.controlador.clickImg('paso7',1, region='region7', excel=[self.excel,self.i])
-        self.controlador.write(self.idVendedor)
-        try:
-            self.controlador.wait('regionExpedicion', menos=True, confidence=0.90)
-            self.controlador.clickImg('pasoExpedicion',1, region='regionExpedicion', seleccionar=True, excel=[self.excel,self.i])
-            self.controlador.write(self.fechaExpedicion)
-        except:
-            pass
-        
-        self.controlador.clickImg('paso8',1, region='region8', excel=[self.excel,self.i])
-        self.controlador.write(self.min)
-        self.controlador.scroll(-600)
-        self.controlador.clickImg('paso9',1, region='region9', desplazar=True, excel=[self.excel,self.i])
-        tamañoNip = len(self.nip)
-        while (tamañoNip<5):
-            self.controlador.write('0')
-            tamañoNip += 1
-        self.controlador.write(self.nip)
-        self.controlador.clickImg('paso10',1, region='region10', seleccionar=True, copiar=True, excel=[self.excel,self.i])
-        contenido_portapapeles = pyperclip.paste()
-        fecha = datetime.strptime(contenido_portapapeles, '%d/%m/%Y')
-        if 3 <= fecha.weekday() <= 7:
-            print("La fecha cae entre jueves y domingo.")
+        self.poliedro.tipoDoc(self.tipo, '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[1]/div/span/span[1]/span/span[1]')
+        primerFormulario = [
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[3]/div/input', self.iccid],
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[2]/div/input', self.idCliente],
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[3]/div/input', self.apellido],
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', self.idVendedor],
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[2]/input', self.min],
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[3]/div/input', self.nip],
+        ]
+        print('listos formularios')
+        self.poliedro.rellenoFormulario(6, primerFormulario)
+        fecha = self.portas.value('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input')
+        fecha = datetime.strptime(fecha, '%d/%m/%Y')
+        if 5 <= fecha.weekday() <= 7:
+            print("La fecha cae entre sabado y domingo.")
             if self.checkbox_var.get():
                 festivo = 1
             else:
@@ -201,7 +163,8 @@ class Portas:
             proximo_lunes = fecha + timedelta(days=dias_hasta_lunes)
             newfecha = proximo_lunes.strftime('%d/%m/%Y')
             print(newfecha)
-            self.controlador.write(newfecha, enter=True)
+            self.portas.eraseLetter('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', 10)
+            self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', newfecha)
         if self.checkbox_var.get() and fecha.weekday() ==0:
             print("La fecha cae lunes festivo")
             if self.checkbox_var.get():
@@ -212,181 +175,131 @@ class Portas:
             proximo_lunes = fecha + timedelta(days=dias_hasta_lunes)
             newfecha = proximo_lunes.strftime('%d/%m/%Y')
             print(newfecha)
-            self.controlador.write(newfecha, enter=True)
+            self.portas.eraseLetter('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', 10)
+            self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', newfecha)
 
         else:
-            print("La fecha no cae entre jueves y domingo.")
-        self.controlador.clickImg('paso11',1, region='region11')
-        self.controlador.write(self.iccid, enter=True, pausa=True)
+            print("La fecha no cae entre sabado y domingo.")
+        
         if str(self.iccid2) != 'nan':
-            self.controlador.clickImg('paso12',1, region='region12', excel=[self.excel,self.i])
-            self.controlador.write(self.iccid2)
-        self.controlador.clickImg('paso13',1, excel=[self.excel,self.i])
-        self.controlador.wait('wait6', extra=True)
-        self.controlador.clickImg('paso14',1, excel=[self.excel,self.i])
-        self.controlador.wait('wait1')
-        self.controlador.scroll(-300)
-        self.ventana_informacion.write('moviendo mouse')
-        try:
-            self.controlador.quitarMouse()
-        except:
-            pass
-        self.ventana_informacion.write('movido')
-        try:
-            self.controlador.wait('wait2', menos=True, confidence=0.90)
-            intentoBasico = True
-        except:
-            intentoBasico = False
-        if intentoBasico:
-            self.rellenarDatosBasicos()
-        try:
-            self.controlador.wait('regionBasica1', menos=True, confidence=0.90)
-            intentoSr = True
-        except:
-            intentoSr = False
-        if intentoSr:
-            self.rellenarSr()
-        try:
-            self.controlador.wait('regionBasica4', menos=True)
-            intentoCorreo = True
-        except:
-            intentoCorreo = False
-        if intentoCorreo:
-            self.rellenarCorreo()
-        try:
-            # self.controlador.scroll(-300)
-            self.controlador.wait('wait3', menos=True)
-            intentoTelefono = True
-        except:
-            intentoTelefono = False
-        if intentoTelefono:
-            self.rellenarTelefono()
-        try:
-            self.controlador.wait('wait3-2', menos=True)
-            intentoTelefono2 = True
-        except:
-            intentoTelefono2 = False
-        if intentoTelefono2:
-            self.rellenarTelefono2()
-        try:
-            self.controlador.wait('wait4', menos=True, confidence=0.90)
-            intentoDocumento = True
-        except:
-            intentoDocumento = False
-        if intentoDocumento:
-            self.rellenarDocumento()
-        try:
-            self.controlador.wait('wait5', menos=True)
-            intentoDireccion = True
-        except:
-            intentoDireccion = False
-        if intentoDireccion:
-            self.rellenarDireccion()
-        try:
-            self.controlador.wait('wait5-2', menos=True)
-            intentoDireccion2 = True
-        except:
-            intentoDireccion2 = False
-        if intentoDireccion2:
-            self.rellenarDireccion2()
-
-        self.opcion1()
-        try:
-            self.controlador.wait('errorCorreo', menos=True)
-            self.errorCorreo = True
-        except:
-            pass
-        if self.errorCorreo:
-            raise('Error Correo')
-
-        self.controlador.wait('wait7', extra=True)
-        self.controlador.clickImg('paso17', 1, 'region17', desplazar=True, excel=[self.excel,self.i], confidenceImg=0.7, confidenceReg=0.7)
-        self.controlador.write('a', enter=True)
-        self.controlador.clickImg('paso18', 1, 'region18', excel=[self.excel,self.i])
-        self.controlador.write('w', enter=True)
-        self.controlador.clickImg('paso19', 1, excel=[self.excel,self.i])
-        self.controlador.scroll(-600)
-        self.controlador.clickImg('paso20', 1, excel=[self.excel,self.i])
-        self.controlador.clickImg('paso21', 1, excel=[self.excel,self.i])
-    
-    def rellenarSr(self):
-        self.controlador.clickImg('pasoBasica1', 1, 'regionBasica1', excel=[self.excel,self.i])
-        self.controlador.write('sr', enter=True)
-
-    def rellenarDatosBasicos(self):
-        self.controlador.clickImg('pasoBasica2', 1, 'regionBasica2', excel=[self.excel,self.i])
-        self.controlador.write(self.nombre, desplazarClick=True)
-        self.controlador.clickImg('pasoBasica3', 1, 'regionBasica3', excel=[self.excel,self.i])
-        self.controlador.write(self.apellido, desplazarClick=True)
-
-    def rellenarCorreo(self):
-        self.controlador.clickImg('pasoBasica4', 1, 'regionBasica4', excel=[self.excel,self.i])
-        self.controlador.write(self.correo, desplazarClick=True, correo=True)
-
-    def rellenarCorreo2(self):
-        self.controlador.clickImg('pasoBasica4-2', 1, 'regionBasica4-2', excel=[self.excel,self.i])
-        self.controlador.write(self.correo, desplazarClick=True, correo=True)
-    
-    def rellenarTelefono(self):
-        self.controlador.clickImg('pasoTel1', 1, 'regionTel1', excel=[self.excel,self.i])
-        self.controlador.write('fij', enter=True)
-        self.controlador.clickImg('pasoTel2', 1, 'regionTel2', excel=[self.excel,self.i])
-        self.controlador.write('604', enter=True)
-        self.controlador.clickImg('pasoTel3', 1, 'regionTel3', excel=[self.excel,self.i])
-        self.controlador.write('6046679', enter=True, backspase=True)
-    
-    def rellenarTelefono2(self):
-        self.controlador.clickImg('pasoTel1-2', 1, 'regionTel1-2', excel=[self.excel,self.i])
-        self.controlador.write('fij', enter=True)
-        self.controlador.clickImg('pasoTel2-2', 1, 'regionTel2-2', excel=[self.excel,self.i])
-        self.controlador.write('604', enter=True)
-        self.controlador.clickImg('pasoTel3-2', 1, 'regionTel3-2', excel=[self.excel,self.i])
-        self.controlador.write('6046679', enter=True, backspase=True)
-    
-    def rellenarDocumento(self):
-        self.controlador.clickImg('pasoCc1', 1, 'regionCc1', excel=[self.excel,self.i])
-        self.controlador.write(self.tipo, enter=True)
-        self.controlador.clickImg('pasoCc2', 1, 'regionCc2', excel=[self.excel,self.i])
-        self.controlador.write(self.idCliente, enter=True, backspase=True)
-    
-    def rellenarDireccion(self):
-        self.controlador.clickImg('pasoDireccion1', 1, 'regionDireccion1', excel=[self.excel,self.i])
-        self.controlador.write('otras', enter=True)
-        time.sleep(3)
-        self.controlador.clickImg('pasoDireccion2', 1, 'regionDireccion2', excel=[self.excel,self.i])
-        self.controlador.write('centro', enter=True, desplazarClick=True)
-        self.controlador.clickImg('pasoDireccion3', 1, 'regionDireccion3', excel=[self.excel,self.i])
-        self.controlador.write('ant', enter=True)
-        self.controlador.clickImg('pasoDireccion4', 1, 'regionDireccion4', excel=[self.excel,self.i])
-        self.controlador.write('medel', enter=True)
-        self.controlador.clickImg('pasoDireccion5', 1, 'regionDireccion5', excel=[self.excel,self.i])
-        self.controlador.write('central', enter=True, desplazarClick=True)
-    
-    def rellenarDireccion2(self):
-        self.controlador.clickImg('pasoDireccion1-2', 1, 'regionDireccion1-2', excel=[self.excel,self.i])
-        self.controlador.write('otras', enter=True)
-        time.sleep(3)
-        self.controlador.clickImg('pasoDireccion2-2', 1, 'regionDireccion2-2', excel=[self.excel,self.i])
-        self.controlador.write('centro', enter=True, desplazarClick=True)
-        self.controlador.clickImg('pasoDireccion3-2', 1, 'regionDireccion3-2', excel=[self.excel,self.i])
-        self.controlador.write('ant', enter=True)
-        self.controlador.clickImg('pasoDireccion4-2', 1, 'regionDireccion4-2', excel=[self.excel,self.i])
-        self.controlador.write('medel', enter=True)
-        self.controlador.clickImg('pasoDireccion5-2', 1, 'regionDireccion5-2', excel=[self.excel,self.i])
-        self.controlador.write('central', enter=True, desplazarClick=True)
-    
-
-    def opcion1(self):
-        self.controlador.scroll(-3000)
-        if self.tipoLinea == 'prepago':
-            self.controlador.clickImg('paso15', 1, 'region15-prepago', excel=[self.excel,self.i])
+            try:
+                self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[4]/div/input', self.iccid2)
+                minpre = False
+            except: minpre = True
         else:
-            self.controlador.clickImg('paso15', 1, 'region15-postpago', excel=[self.excel,self.i])
-        self.controlador.clickImg('paso16', 1, excel=[self.excel,self.i])
-
-
-        
-        
+            try:
+                self.portas.waitExist('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[4]/div/input', write=True)
+                minpre = True
+            except: minpre = False
+        if minpre: 
+            self.captarError('','Se necesita Min preactivado')
+        else:
+            if str(self.fechaExpedicion) != 'nan':
+                try:
+                    self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[3]/div[1]/div/input', self.fechaExpedicion)
+                except:
+                    pass
+            time.sleep(2)
+            self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[5]/input[1]')
+            try: self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[5]/input[1]')
+            except: pass
+            options = [
+                ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[6]/div/span'],
+                ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[4]/ul/li'],
+                ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/div[2]/div[1]/div/div/div'],
+                ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/div[2]/div[1]/div/div[2]/div[2]/div'],
+            ]
+            functionList = [
+                self.validado,
+                self.errorDuplaIccid,
+                self.errorKitRegistrado,
+                self.lecturaIccidResponse,
+            ]
+            self.poliedro.detectOption(options, functionList, NoneFunc=self.errorGeneral)
     
+    def lecturaIccidResponse(self):
+        self.captarError('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/div[2]/div[1]/div/div[2]/div[2]/div')
+    
+    def errorDuplaIccid(self):
+        self.captarError('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[4]/ul/li')
+    
+    def errorKitRegistrado(self):
+        mensaje = self.portas.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/div[2]/div[2]/div/div/div')
+        if 'linea no se' in mensaje:
+            self.captarError('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/div[2]/div[1]/div/div/div')
+        elif mensaje == '':
+            self.captarError('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/div[2]/div[5]/div/div[2]/div[1]/div')
+        else:
+            self.captarError('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/div[2]/div[2]/div/div/div')
+    
+    def validado(self):
+        validado = self.portas.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[6]/div/span')
+        if 'Validación Correcta' in validado: pass
+        else: raise('invalido')
+        time.sleep(0.5)
+        self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[3]')
+        self.poliedro.tipoDoc('sr', '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[1]/div[1]/div/span/span[1]/span/span[1]')
+        self.tryInsert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[1]/div[2]/div/input', self.nombre)
+        self.tryInsert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[1]/div[3]/div/input', self.apellido)
+        correo= self.portas.value('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[1]/div[4]/div/input')
+        if correo == '':
+            self.tryInsert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[1]/div[4]/div/input', self.correo)
+        try: self.poliedro.tipoDoc('cedula', '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[2]/div[1]/div/span/span[1]/span/span[1]')
+        except: pass
+        try: self.poliedro.rellenoNumero2()
+        except:pass
+        try: self.poliedro.rellenoDireccion2()
+        except:pass
+        try: self.portas.eraseLetter('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[2]/div[2]/div/input', 1, move=True)
+        except: pass
+        self.tryInsert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[2]/div[2]/div/input', self.idCliente)
+        if self.tipoLinea.lower() == 'prepago':
+            self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[2]/div[1]/div/div/div[2]/span/span/input')
+        else:
+            self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[2]/div[1]/div/div/div[1]/span/span/input')
+        self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/input[2]')
 
+        self.poliedro.tipoDoc('al', '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div/div[1]/div[2]/div/span/span[1]/span/span[1]')
+        self.poliedro.tipoDoc('w', '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div/div[1]/div[3]/div/span/span[1]/span/span[1]')
+        self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[2]')
+        self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[2]')
+        optionsFinal = [
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/strong/strong/div/div/div/p/text()[2]'],
+            ['/html/body/div/strong/strong/div[2]/div[1]/div/button[2]'],
+        ]
+        functionListFinal = [
+            self.errorTamañoDireccion,
+            self.terminarPorta,
+        ]
+        self.poliedro.detectOption(optionsFinal, functionListFinal, NoneFunc=self.errorGeneral)
+    
+    def tryInsert(self, path, text):
+        try: self.portas.insert(path, text) 
+        except: pass
+    
+    def errorGeneral(self):
+        raise('error general')
+    
+    def terminarPorta(self):
+        self.portas.click('/html/body/div/strong/strong/div[2]/div[1]/div/button[2]')
+        self.msisdn = self.portas.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/div/fieldset[3]/div/div/strong')
+        print(self.msisdn)
+        self.excel.guardar(self.contador,'MSISDN',self.msisdn, destino='src\portas\portabilidad.xlsx')
+        elapsed_time = time.time() - self.start_time
+        self.excel.guardar(self.contador,'MENSAJE',str(round(elapsed_time,2)), destino='src\portas\portabilidad.xlsx')
+        self.poliedro.reinicio()
+        self.contador += 1
 
+    def errorTamañoDireccion(self):
+        self.captarError('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/strong/strong/div/div/div/p/text()[2]')
+    
+    def captarError(self, path, mensaje=None):
+        if mensaje == None:
+            validado = self.portas.read(path)
+        else:
+            validado = mensaje
+        self.ventana_informacion.write(f'{self.min} {validado}')
+        self.excel.guardar(self.contador, 'MENSAJE', validado, destino='src\portas\portabilidad.xlsx')
+        self.excel.guardar(self.contador,'MSISDN','error', destino='src\portas\portabilidad.xlsx')
+        self.poliedro.reinicio()
+        self.contador += 1

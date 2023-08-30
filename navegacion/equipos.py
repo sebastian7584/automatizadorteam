@@ -68,7 +68,7 @@ class Equipos:
 
         while self.ciclo:
             if self.contador == self.excel.cantidad:
-                ciclo = False
+                self.ciclo = False
             else:
                 self.mensaje = ''
                 self.EquiposInd()

@@ -10,6 +10,8 @@ import zipfile
 from io import BytesIO
 from msedge.selenium_tools import Edge, EdgeOptions
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+import random
 
 
 class Web_Controller:
@@ -17,12 +19,16 @@ class Web_Controller:
     def __init__(self, sleeptime):
         global sleep
         sleep = sleeptime
+        global aleatorio
+        aleatorio = False
         # self.edgedriver()
         # self.openEdge()
     
-    def actualizarIntervalo(self, valor):
+    def actualizarIntervalo(self, valor, aleatorio_value=False):
         global sleep
         sleep = valor
+        global aleatorio
+        aleatorio = aleatorio_value
 
       
     
@@ -59,11 +65,15 @@ class Web_Controller:
                 try:
                     data = funcion(self,*args, **kwargs)
                     proof= False
-                    time.sleep(int(sleep))
+                    if aleatorio:
+                        randomTime = round(random.uniform(-0.15,1.15),2)
+                    else:
+                        randomTime = 0
+                    time.sleep(int(float(sleep) + randomTime))
                     return data
-                except:
+                except Exception as err:
                     if contador < 30:
-                        print(f'intento numero {contador}')
+                        print(f'intento numero {contador} {err}')
                         time.sleep(1)
                         contador +=1
                     else:
@@ -121,6 +131,16 @@ class Web_Controller:
         else: find =None
         if find is not None:
             find.send_keys(text)
+
+    @validate
+    def select(self, byStr, text, by='xpath'):
+        if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
+        elif by == "id": find = self.browser.find_element_by_id(byStr)
+        elif by == "name": find = self.browser.find_element_by_name(byStr)
+        else: find =None
+        if find is not None:
+            selection = Select(find)
+            selection.select_by_value(text)
     
     @validate
     def click(self, byStr, by='xpath'):
@@ -148,6 +168,15 @@ class Web_Controller:
         if find is not None:
             return find.text
         else: return "none"
+    
+    @validate
+    def value(self, byStr, by='xpath'):
+        if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
+        elif by == "id": find = self.browser.find_element_by_id(byStr)
+        elif by == "name": find = self.browser.find_element_by_name(byStr)
+        if find is not None:
+            return find.get_attribute('value')
+        else: return "none"
 
     def readNoValidate(self, byStr, by='xpath'):
         if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
@@ -157,12 +186,23 @@ class Web_Controller:
             return find.text
         else: return "none"
     
-    @validate
-    def waitExist(self, byStr, by='xpath'):
+    # @validate
+    # def waitExist(self, byStr, by='xpath'):
+    #     if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
+    #     elif by == "id": find = self.browser.find_element_by_id(byStr)
+    #     elif by == "name": find = self.browser.find_element_by_name(byStr)
+    #     if find is not None:
+    #         pass
+    #     else: raise('')
+    
+    @validateShort
+    def waitExist(self, byStr, by='xpath', write=False):
         if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
         elif by == "id": find = self.browser.find_element_by_id(byStr)
         elif by == "name": find = self.browser.find_element_by_name(byStr)
         if find is not None:
+            if write:
+                find.send_keys('')
             pass
         else: raise('')
 
@@ -186,13 +226,15 @@ class Web_Controller:
             find.clear()
     
     @validate   
-    def eraseLetter(self, byStr, cantidad, by='xpath'):
+    def eraseLetter(self, byStr, cantidad, by='xpath', move=False):
         if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
         elif by == "id": find = self.browser.find_element_by_id(byStr)
         elif by == "name": find = self.browser.find_element_by_name(byStr)
         else: find =None
         if find is not None:
             for i in range(0,cantidad):
+                if move:
+                    find.send_keys(Keys.ARROW_RIGHT)
                 find.send_keys(Keys.BACKSPACE)
 
     @validate   
@@ -222,5 +264,5 @@ class Web_Controller:
     
     def cerrar(self):
         self.browser.quit()
-    
-    
+
+# ejempo = Web_Controller(0).edgedriver()

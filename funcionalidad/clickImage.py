@@ -51,12 +51,12 @@ class ClickImage:
         self.reducirBorde()
         self.time = tiempo
         self.randomPausa()
-        extraTime = 10 if self.pausa else 0
+        extraTime = 6 if self.pausa else 0
         pause = random.randint(0,extraTime)
         if pause > 0:
             print(f'se pausa {pause} segundos')
             time.sleep(pause)
-        randomTime = round(random.uniform(self.time-0.12, self.time+1.5),2)
+        randomTime = round(random.uniform(self.time-0.12, self.time+1),2)
         x = random.randint(self.minX,self.maxX)
         y = random.randint(self.minY,self.maxY)
         pyautogui.moveTo(x,y,duration=randomTime, tween=pyautogui.easeInOutQuad, logScreenshot=False)

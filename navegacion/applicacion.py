@@ -99,7 +99,7 @@ class App:
     
     def compras_frame(self):
         self.button_compras.configure(fg_color=self.colors.team, text_color='white')
-        compras.Compras(self.interfas_frame)
+        compras.Compras(self.interfas_frame, self.on_of_panel)
         self.screen = 'gestion_humana_frame'
 
     def equipos_frame(self):
@@ -119,7 +119,7 @@ class App:
 
     def portas_frame(self):
         self.button_portas.configure(fg_color=self.colors.team, text_color='white')
-        portas.Portas(self.interfas_frame, self.cambiarTamaño, self.ventana_superior)
+        portas.Portas(self.interfas_frame, self.on_of_panel)
         self.screen = 'auditoria_frame'
 
     # def comercial_frame(self):

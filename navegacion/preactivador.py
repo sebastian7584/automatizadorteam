@@ -10,6 +10,8 @@ import time
 class Preactivador:
 
     def __init__(self,master, on_of):
+        self.min = ''
+        self.mensaje = 's'
         self.on_of = on_of
         self.poliedro = poliedro.Poliedro()
         self.excel = excel.Excel_controller()
@@ -39,7 +41,7 @@ class Preactivador:
         
     
     def abrir_excel(self):
-        self.ventana_informacion.write('excel equipos abierto recuerde cerrar antes de iniciar')
+        self.ventana_informacion.write('excel preactivador abierto recuerde cerrar antes de iniciar')
         p = Popen("src\preactivador\openExcel.bat")
         stdout, stderr = p.communicate()
     
@@ -74,10 +76,16 @@ class Preactivador:
 
         while self.ciclo:
             if self.contador == self.excel.cantidad:
-                ciclo = False
+                self.ciclo = False
             else:
-                self.mensaje = ''
-                self.EquiposInd()
+                self.min= str(self.excel.excel['Min'][self.contador])
+                if str(self.min) != 'nan':
+                        self.ventana_informacion.write(f'Preactivación ya realizada')
+                        self.contador += 1
+                else:
+                    self.mensaje = ''
+                    self.min = ''
+                    self.EquiposInd()
         self.ventana_informacion.write('Proceso terminado')
         self.on_of(True)
     
@@ -90,9 +98,10 @@ class Preactivador:
             self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[1]/div/span/span[1]/span/span[1]')
             self.preactivador.click('/html/body/span/span/span[2]/ul/li[3]')
             self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[2]/div/input', '900206401')
-            self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[3]/div[1]/div/span/span[1]/span/span[1]')
+            self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[1]/div/span/span[1]/span/span[1]')
             self.preactivador.click('/html/body/span/span/span[2]/ul/li[2]')
-            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[3]/div[3]/div/input', self.iccid)
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[3]/div/input', self.iccid)
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', '1010014821')
             self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[5]/input[1]')
             self.preactivador.waitExist('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[1]')
             optionsList = [
@@ -116,11 +125,15 @@ class Preactivador:
         self.contador += 1
 
     def errorValidacion(self):
-        self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[1]')
-        self.preactivador.erase('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[3]/div[3]/div/input')
-        self.preactivador.erase('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[2]/div/input')
+        self.ventana_informacion.write(f'Activacion erronea de equipo {self.iccid}')
+        self.poliedro.reinicio()
+        self.contador += 1
+        # self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[1]')
+        # self.preactivador.erase('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[3]/div[3]/div/input')
+        # self.preactivador.erase('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[2]/div/input')
         self.min = ''
         self.mensaje = 'Error en activacion'
+        self.guardarData()
     
     def terminarActivacion(self):
         self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[3]')
@@ -128,12 +141,14 @@ class Preactivador:
         self.preactivador.click('/html/body/span/span/span[2]/ul/li[2]')
         self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[4]/div/input', self.correo)
         time.sleep(2)
+        #telefono
         self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[1]/div/select', 'fijo')
         time.sleep(2)
         self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[2]/div/select', '604')
         time.sleep(2)
         self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[3]/div/input', '3131234')
         time.sleep(2)
+        #direccion
         self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[1]/div[1]/select', 'Otras')
         time.sleep(2)
         self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[2]/div/input', 'CENTRO')
@@ -145,6 +160,7 @@ class Preactivador:
         self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[5]/div/input', 'CENTRO')
         time.sleep(2)
         self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[2]')
+        #validar si correo no valido
         self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div/div[1]/div[2]/div/span/span[1]/span/span[1]')
         self.preactivador.click('/html/body/span/span/span[2]/ul/li[2]')
         self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div/div[1]/div[3]/div/span/span[1]/span/span[1]')
@@ -154,11 +170,11 @@ class Preactivador:
         self.min = self.preactivador.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/strong/strong/div/div/div/p/strong[3]')
         self.min = self.min[-10:]
         self.mensaje = ''
-        self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[1]')
-        self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[1]/div[1]/div[1]/div/div/ul/li[1]/span/input')
-        self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', '1010014821')
+        # self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[1]')
+        # self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[1]/div[1]/div[1]/div/div/ul/li[1]/span/input')
+        # self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', '1010014821')
 
 
     def guardarData(self):
-        self.excel.guardar(self.contador, 'Min', self.min, 'src\equipos\equipos.xlsx')
-        self.excel.guardar(self.contador, 'Mensaje', self.mensaje, 'src\equipos\equipos.xlsx')
+        self.excel.guardar(self.contador, 'Min', self.min, 'src\preactivador\preactivador.xlsx')
+        self.excel.guardar(self.contador, 'Mensaje', self.mensaje, 'src\preactivador\preactivador.xlsx')

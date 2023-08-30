@@ -74,10 +74,16 @@ class Legalizador:
 
         while self.ciclo:
             if self.contador == self.excel.cantidad:
-                ciclo = False
+                self.ciclo = False
             else:
                 try:
-                    self.legalizadorInd()
+                    self.min= str(self.excel.excel['Min'][self.contador])
+                    if str(self.min) != 'nan':
+                        self.ventana_informacion.write(f'Portabilidad ya realizada o con error ya detectado')
+                        self.contador += 1
+                    else:
+                        self.min = ''
+                        self.legalizadorInd()
                 except:
                     self.ventana_informacion.write(f'Siguiente por error en legalizacion de {self.min}')
                     self.excel.guardar(self.contador, 'Mensaje', 'error')
@@ -148,7 +154,7 @@ class Legalizador:
         self.poliedro.rellenoCedula(self.cedula)
         self.poliedro.correo(self.correo)
         self.poliedro.rellenoNumero()
-        self.poliedro.rellenoDireccion()
+        self.poliedro.rellenoDireccion(legalizador=True)
         self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[5]/input[2]')
         self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/input[2]')
         self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[2]')
