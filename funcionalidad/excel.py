@@ -20,3 +20,7 @@ class Excel_controller:
         
         else:
             raise('No tiene cantidad determinada en la funcion de lectura, por no agregar titulo')
+    
+    def export(self, result, file):
+        df = pd.DataFrame(result[1:], columns=result[0])
+        df.to_excel(file, index=False)

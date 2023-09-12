@@ -52,7 +52,7 @@ class Poliedro:
     def reinicio(self):
         self.browser.click('/html/body/div/div[2]/section/div/div[1]/aside/nav/div[2]/ul/li[10]/a')
         if self.tropas == False:
-            self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[13]/td[1]/a')
+            self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[12]/td[1]/a')
         self.seleccionAcceso(self.opcion)
     
     def saludo(self):
@@ -86,15 +86,25 @@ class Poliedro:
             self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[2]/div/input', cedula)
 
     def rellenoNumero(self):
-        self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[1]/div/span/span[1]/span/span[1]')
-        self.browser.write('/html/body/span/span/span[1]/input', 'fijo')
-        self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
-        self.browser.click('//html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[2]/div/span/span[1]/span/span[1]')
-        time.sleep(1)
-        self.browser.write('/html/body/span/span/span[1]/input', '604')
-        self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
-        self.browser.write('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[3]/div/input', '3131234')
-     
+        try:
+            self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[1]/div/span/span[1]/span/span[1]')
+            self.browser.write('/html/body/span/span/span[1]/input', 'fijo')
+            self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
+            self.browser.click('//html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[2]/div/span/span[1]/span/span[1]')
+            time.sleep(1)
+            self.browser.write('/html/body/span/span/span[1]/input', '604')
+            self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
+            self.browser.write('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[3]/div/input', '3131234')
+        except:
+            try:
+                self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[1]/div/select', 'fijo')
+                time.sleep(1)
+                self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[2]/div/select', '604')
+                time.sleep(1)
+                self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[3]/div/input', '3131234')
+            except:
+                raise('No logra ingresar datos de Numero')
+
     def rellenoNumero2(self):
         try: 
             self.browser.waitExist('PhoneClass', 'id', write=True)
@@ -114,24 +124,38 @@ class Poliedro:
             self.browser.write('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[1]/div[5]/div[2]/fieldset/div/div[3]/div/input', '3131234')
      
     def rellenoDireccion(self, legalizador=False):
-        if legalizador:
+        try:
+            if legalizador:
+                self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[1]/div[1]/span/span[1]/span/span[1]')
+                self.browser.write('/html/body/span/span/span[1]/input', 'otras')
+                self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
+            else:
+                self.browser.select('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[1]/div[1]/span/span[1]/span/span[1]','otras')
             self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[1]/div[1]/span/span[1]/span/span[1]')
             self.browser.write('/html/body/span/span/span[1]/input', 'otras')
             self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
-        else:
-            self.browser.select('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[1]/div[1]/span/span[1]/span/span[1]','otras')
-        self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[1]/div[1]/span/span[1]/span/span[1]')
-        self.browser.write('/html/body/span/span/span[1]/input', 'otras')
-        self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
-        self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[2]/div/input', 'central')
-        self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[3]/div/span/span[1]/span/span[1]')
-        self.browser.write('/html/body/span/span/span[1]/input', 'antio')
-        self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
-        self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[4]/div/span/span[1]/span/span[1]')
-        self.browser.write('/html/body/span/span/span[1]/input', 'mede')
-        self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
-        self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[5]/div/input', 'central')
-    
+            self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[2]/div/input', 'central')
+            self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[3]/div/span/span[1]/span/span[1]')
+            self.browser.write('/html/body/span/span/span[1]/input', 'antio')
+            self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
+            self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[4]/div/span/span[1]/span/span[1]')
+            self.browser.write('/html/body/span/span/span[1]/input', 'mede')
+            self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
+            self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[5]/div/input', 'central')
+        except:
+            try:
+                self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[1]/div[1]/select', 'otras')
+                time.sleep(1)
+                self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[2]/div/input', 'central')
+                time.sleep(1)
+                self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[3]/div/select', 'ANTIOQUIA')
+                time.sleep(1)
+                self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[4]/div/select', 'MEDELLIN')
+                time.sleep(1)
+                self.browser.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[5]/div/input', 'central')
+            except:
+                raise('No logra ingresar datos Direccion')
+
     def rellenoDireccion2(self):
         try:
             self.browser.waitExist('AddressClassId', 'id', write=True)

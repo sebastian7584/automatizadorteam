@@ -116,7 +116,7 @@ class Portas:
                     # self.reinicio()
                 except:
                     self.ventana_informacion.write(f'Siguiente por error en portabilidad de {self.min}')
-                    self.excel.guardar(self.contador, 'MENSAJE', 'error')
+                    self.excel.guardar(self.contador, 'MENSAJE', 'error', destino='src\portas\portabilidad.xlsx')
                     self.poliedro.reinicio()
                     self.contador += 1
 

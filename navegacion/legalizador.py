@@ -22,6 +22,7 @@ class Legalizador:
         self.time = tk.StringVar()
         self.time.set('0')
         self.titulo = label.Label().create_label(self.menu.submenu, 'Intervalos', 0.0, 0.65, 0.5,0.2, letterSize= 16)
+        self.titulo = label.Label().create_label(self.menu.submenu, 'Ciclos', 0.0, 0.78, 0.5,0.05, letterSize= 16)
         self.titulo2 = label.Label().create_label(self.menu.submenu, 'Correo', 0.25, 0.83, 0.5,0.05, letterSize= 16)
         input_widget = ctk.CTkEntry(self.menu.submenu, textvariable=self.time)
         input_widget.place(relx=0.5, rely=0.73, relheight=0.05, relwidth=0.2)
@@ -32,16 +33,27 @@ class Legalizador:
         self.correo = 'acruz@teamcomunicaciones.com'
         self.correoEdit = tk.StringVar()
         self.correoEdit.set(self.correo) 
+        self.repeticiones = '1'
+        self.repeticionesEdit = tk.StringVar()
+        self.repeticionesEdit.set(self.repeticiones) 
         input_widget2 = ctk.CTkEntry(self.menu.submenu, textvariable=self.correoEdit)
         input_widget2.place(relx=0.15, rely=0.89, relheight=0.05, relwidth=0.7)
+        input_widget3 = ctk.CTkEntry(self.menu.submenu, textvariable=self.repeticionesEdit)
+        input_widget3.place(relx=0.5, rely=0.79, relheight=0.05, relwidth=0.2)
         self.okBotton2 = boton.create_button(self.menu.submenu, 'confirmar', 0.3, 0.95, 0.40, 0.05, self.cambioCorreo)
         self.okBotton2.configure(fg_color= color.team, text_color= 'white')
+        self.okBotton3 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.79, 0.15, 0.05, self.cambioCiclos)
+        self.okBotton3.configure(fg_color= color.team, text_color= 'white')
         
     
     def abrir_excel(self):
         self.ventana_informacion.write('excel legalizador abierto recuerde cerrar antes de iniciar')
         p = Popen("src\legalizador\openExcel.bat")
         stdout, stderr = p.communicate()
+    
+    def cambioCiclos(self):
+        self.repeticiones = self.repeticionesEdit.get()
+        self.ventana_informacion.write(f'Numero de repeticiones configurado en {self.repeticiones}')
     
     def cambioIntervalo(self):
         self.legalizador.actualizarIntervalo(self.time.get())
@@ -67,29 +79,36 @@ class Legalizador:
         self.ventana_informacion.write('Empezando ejecuccion')
         self.poliedro.definirBrowser(self.legalizador)
         self.poliedro.seleccionAcceso('362')
-        self.excel.leer_excel('src\legalizador\legalizador.xlsx','iccid')
-        self.excel.quitarFormatoCientifico('iccid')
-        self.ciclo = True
-        self.contador = 0
-
-        while self.ciclo:
-            if self.contador == self.excel.cantidad:
-                self.ciclo = False
-            else:
-                try:
-                    self.min= str(self.excel.excel['Min'][self.contador])
-                    if str(self.min) != 'nan':
-                        self.ventana_informacion.write(f'Portabilidad ya realizada o con error ya detectado')
+        for i in range(int(self.repeticiones)):
+            self.ciclo = True
+            self.contador = 0
+            self.excel.leer_excel('src\legalizador\legalizador.xlsx','iccid')
+            self.excel.quitarFormatoCientifico('iccid')
+            self.ventana_informacion.write(f'Ciclo {i+1}')
+            while self.ciclo:
+                if self.contador == self.excel.cantidad:
+                    self.ciclo = False
+                else:
+                    try:
+                        self.min = str(self.excel.excel['min'][self.contador])
+                        self.mensaje= str(self.excel.excel['Mensaje'][self.contador])
+                        if str(self.mensaje) != 'nan' and str(self.mensaje) != 'error':
+                            self.ventana_informacion.write(f'Legalizacion {self.min} ya realizada o con error ya detectado')
+                            self.contador += 1
+                        else:
+                            self.mensaje = ''
+                            self.min = ''
+                            self.legalizadorInd()
+                    except:
+                        self.ventana_informacion.write(f'Siguiente por error en legalizacion de {self.min}')
+                        if f'{len(self.cedula)}' == '9':
+                            self.excel.guardar(self.contador, 'Mensaje', 'error por cedula de 9 digitos')
+                        else:
+                            self.excel.guardar(self.contador, 'Mensaje', 'error')
+                        self.poliedro.reinicio()
                         self.contador += 1
-                    else:
-                        self.min = ''
-                        self.legalizadorInd()
-                except:
-                    self.ventana_informacion.write(f'Siguiente por error en legalizacion de {self.min}')
-                    self.excel.guardar(self.contador, 'Mensaje', 'error')
-                    self.poliedro.reinicio()
-                    self.contador += 1
-        self.ventana_informacion.write('Proceso terminado')
+            self.ventana_informacion.write('Proceso terminado')
+            self.ventana_informacion.write(f'Ciclo {i+1} finalizado')
         self.on_of(True)
     
 
