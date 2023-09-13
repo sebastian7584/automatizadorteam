@@ -52,7 +52,7 @@ class Poliedro:
     def reinicio(self):
         self.browser.click('/html/body/div/div[2]/section/div/div[1]/aside/nav/div[2]/ul/li[10]/a')
         if self.tropas == False:
-            self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[12]/td[1]/a')
+            self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[13]/td[1]/a')
         self.seleccionAcceso(self.opcion)
     
     def saludo(self):

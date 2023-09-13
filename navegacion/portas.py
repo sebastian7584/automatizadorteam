@@ -12,6 +12,7 @@ import customtkinter as ctk
 class Portas:
 
     def __init__(self, master, on_of):
+        self.pagina = ''
         self.on_of = on_of
         self.errorCorreo=False
         self.master = master
