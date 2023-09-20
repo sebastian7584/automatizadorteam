@@ -11,7 +11,7 @@ class Legalizador:
 
     def __init__(self,master, on_of):
         self.on_of = on_of
-        self.poliedro = poliedro.Poliedro()
+        self.poliedro = poliedro.Poliedro(legalizador=True)
         self.excel = excel.Excel_controller()
         self.link= 'https://poliedrodist.comcel.com.co/'
         self.link2='https://poliedrodist.comcel.com.co/activaciones/http/REINGENIERIA/pagDispatcherEntradaModernizacion.asp?Site=1'

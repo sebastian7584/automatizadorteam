@@ -1,5 +1,5 @@
 from tkinter import Canvas
-from recursos import colors, botones, create_frame
+from recursos import colors, botones, create_frame, label
 from navegacion import activar_lineas, compras, equipos, legalizador, portas, preactivador
 import customtkinter as ctk
 from PIL import ImageTk, Image
@@ -7,7 +7,9 @@ from PIL import ImageTk, Image
 
 class App:
 
-    def __init__ (self, geometry, title):
+    def __init__ (self, geometry, title, version):
+        self.version = version
+        self.label = label.Label()
         self.colors = colors.Colors()
         self.button =botones.Buttons()
         self.create_frame = create_frame.Frames().create_frame
@@ -78,7 +80,9 @@ class App:
         # self.button_comercial = self.button.create_button(self.menu_frame, "COMERCIAL", 0.10, 0.86, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.comercial_frame))
         self.canvas = Canvas(self.menu_frame, bg=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), bd=0.1, highlightbackground = getattr(self.colors,f'separador_{str(ctk.get_appearance_mode())}'))
         self.canvas.place(relwidth=0.01, relheight=1, relx=0.99)
+        self.version = self.label.create_label(self.menu_frame, self.version, 0.1, 0.85, 0.8, 0.2, 10)
         self.switch_theme = ctk.CTkSwitch(self.menu_frame, text=self.texto_theme, command= lambda :self.change_theme()).place(relx=0.10, rely=0.96)
+
     
     def hide_menu_indicators(self, func):
         self.button_activar_lineas.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))

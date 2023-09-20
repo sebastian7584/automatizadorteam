@@ -82,17 +82,21 @@ class Portas:
         hilo_portas.start()
     
     def ejecuccion(self):
-        self.on_of(False)
-        self.ventana_informacion.write('Empezando ejecuccion')
-        self.poliedro.definirBrowser(self.portas)
-        self.poliedro.seleccionAcceso('290')
-        self.excel.leer_excel('src\portas\portabilidad.xlsx','CC CLIENTE')
-        self.excel.quitarFormatoCientifico('SERIAL')
-        self.ciclo = True
-        self.contador = 0
-        self.iteraciones()
-        self.ventana_informacion.write('Proceso terminado')
-        self.on_of(True)
+        try:
+            self.on_of(False)
+            self.ventana_informacion.write('Empezando ejecuccion')
+            self.poliedro.definirBrowser(self.portas)
+            self.poliedro.seleccionAcceso('290')
+            self.excel.leer_excel('src\portas\portabilidad.xlsx','CC CLIENTE')
+            self.excel.quitarFormatoCientifico('SERIAL')
+            self.ciclo = True
+            self.contador = 0
+            self.iteraciones()
+            self.ventana_informacion.write('Proceso terminado')
+            self.on_of(True)
+        except Exception as e:
+            self.ventana_informacion.write(f'se detiene el programa error: {e}')
+            raise('se detiene el programa')
         
 
 
@@ -118,7 +122,7 @@ class Portas:
                 except:
                     self.ventana_informacion.write(f'Siguiente por error en portabilidad de {self.min}')
                     self.excel.guardar(self.contador, 'MENSAJE', 'error', destino='src\portas\portabilidad.xlsx')
-                    self.poliedro.reinicio()
+                    self.reinicio()
                     self.contador += 1
 
     def crearVariablesExcel(self,i):
@@ -141,82 +145,88 @@ class Portas:
         self.msisdn = str(self.excel.excel['MSISDN'][i])
 
     def rellenoPrimerFormulario(self):
-        self.poliedro.tipoDoc(self.tipo, '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[1]/div/span/span[1]/span/span[1]')
-        primerFormulario = [
-            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[3]/div/input', self.iccid],
-            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[2]/div/input', self.idCliente],
-            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[3]/div/input', self.apellido],
-            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', self.idVendedor],
-            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[2]/input', self.min],
-            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[3]/div/input', self.nip],
-        ]
-        print('listos formularios')
-        self.poliedro.rellenoFormulario(6, primerFormulario)
-        fecha = self.portas.value('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input')
-        fecha = datetime.strptime(fecha, '%d/%m/%Y')
-        if 5 <= fecha.weekday() <= 7:
-            print("La fecha cae entre sabado y domingo.")
-            if self.checkbox_var.get():
-                festivo = 1
-            else:
-                festivo = 0
-            dias_hasta_lunes = (0 + festivo - fecha.weekday()) % 7
-            proximo_lunes = fecha + timedelta(days=dias_hasta_lunes)
-            newfecha = proximo_lunes.strftime('%d/%m/%Y')
-            print(newfecha)
-            self.portas.eraseLetter('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', 10)
-            self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', newfecha)
-        if self.checkbox_var.get() and fecha.weekday() ==0:
-            print("La fecha cae lunes festivo")
-            if self.checkbox_var.get():
-                festivo = 1
-            else:
-                festivo = 0
-            dias_hasta_lunes = (0 + festivo - fecha.weekday()) % 7
-            proximo_lunes = fecha + timedelta(days=dias_hasta_lunes)
-            newfecha = proximo_lunes.strftime('%d/%m/%Y')
-            print(newfecha)
-            self.portas.eraseLetter('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', 10)
-            self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', newfecha)
-
+        self.pagina = 1
+        if len(self.idCliente) == 9:
+            self.captarError('','No se admite cedula de 9 digitos')
         else:
-            print("La fecha no cae entre sabado y domingo.")
-        
-        if str(self.iccid2) != 'nan':
-            try:
-                self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[4]/div/input', self.iccid2)
-                minpre = False
-            except: minpre = True
-        else:
-            try:
-                self.portas.waitExist('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[4]/div/input', write=True)
-                minpre = True
-            except: minpre = False
-        if minpre: 
-            self.captarError('','Se necesita Min preactivado')
-        else:
-            if str(self.fechaExpedicion) != 'nan':
+            self.portas.eraseLetter('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[3]/div/input', 20)
+            self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[3]/div/input', self.iccid, enter=True)
+            if str(self.iccid2) != 'nan':
                 try:
-                    self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[3]/div[1]/div/input', self.fechaExpedicion)
-                except:
-                    pass
-            time.sleep(2)
-            self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[5]/input[1]')
-            try: self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[5]/input[1]')
-            except: pass
-            options = [
-                ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[6]/div/span'],
-                ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[4]/ul/li'],
-                ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/div[2]/div[1]/div/div/div'],
-                ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/div[2]/div[1]/div/div[2]/div[2]/div'],
-            ]
-            functionList = [
-                self.validado,
-                self.errorDuplaIccid,
-                self.errorKitRegistrado,
-                self.lecturaIccidResponse,
-            ]
-            self.poliedro.detectOption(options, functionList, NoneFunc=self.errorGeneral)
+                    self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[4]/div/input', self.iccid2)
+                    minpre = False
+                except: minpre = True
+            else:
+                try:
+                    self.portas.waitExist('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[4]/div/input', write=True)
+                    minpre = True
+                except: minpre = False
+            if minpre: 
+                self.captarError('','Se necesita Min preactivado')
+                raise('Se necesita Min preactivado')
+            else:
+                self.poliedro.tipoDoc(self.tipo, '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[1]/div/span/span[1]/span/span[1]')
+                primerFormulario = [
+                    ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[2]/div/input', self.idCliente],
+                    ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[3]/div/input', self.apellido],
+                    ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', self.idVendedor],
+                    ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[2]/input', self.min],
+                    ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[3]/div/input', self.nip],
+                ]
+                print('listos formularios')
+                self.poliedro.rellenoFormulario(5, primerFormulario)
+                fecha = self.portas.value('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input')
+                fecha = datetime.strptime(fecha, '%d/%m/%Y')
+                if 5 <= fecha.weekday() <= 7:
+                    print("La fecha cae entre sabado y domingo.")
+                    if self.checkbox_var.get():
+                        festivo = 1
+                    else:
+                        festivo = 0
+                    dias_hasta_lunes = (0 + festivo - fecha.weekday()) % 7
+                    proximo_lunes = fecha + timedelta(days=dias_hasta_lunes)
+                    newfecha = proximo_lunes.strftime('%d/%m/%Y')
+                    print(newfecha)
+                    self.portas.eraseLetter('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', 10)
+                    self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', newfecha)
+                if self.checkbox_var.get() and fecha.weekday() ==0:
+                    print("La fecha cae lunes festivo")
+                    if self.checkbox_var.get():
+                        festivo = 1
+                    else:
+                        festivo = 0
+                    dias_hasta_lunes = (0 + festivo - fecha.weekday()) % 7
+                    proximo_lunes = fecha + timedelta(days=dias_hasta_lunes)
+                    newfecha = proximo_lunes.strftime('%d/%m/%Y')
+                    print(newfecha)
+                    self.portas.eraseLetter('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', 10)
+                    self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[3]/div/div[1]/div[4]/div/input', newfecha)
+
+                else:
+                    print("La fecha no cae entre sabado y domingo.")
+                if str(self.fechaExpedicion) != 'nan':
+                    try:
+                        self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[3]/div[1]/div/input', self.fechaExpedicion)
+                    except:
+                        pass
+                time.sleep(2)
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[5]/input[1]')
+                try: self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[5]/input[1]')
+                except: pass
+                self.pagina = 2
+                options = [
+                    ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[6]/div/span'],
+                    ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[4]/ul/li'],
+                    ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/div[2]/div[1]/div/div/div'],
+                    ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/div[2]/div[1]/div/div[2]/div[2]/div'],
+                ]
+                functionList = [
+                    self.validado,
+                    self.errorDuplaIccid,
+                    self.errorKitRegistrado,
+                    self.lecturaIccidResponse,
+                ]
+                self.poliedro.detectOption(options, functionList, NoneFunc=self.errorGeneral)
     
     def lecturaIccidResponse(self):
         self.captarError('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/div[2]/div[1]/div/div[2]/div[2]/div')
@@ -239,6 +249,7 @@ class Portas:
         else: raise('invalido')
         time.sleep(0.5)
         self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[3]')
+        self.pagina = 3
         self.poliedro.tipoDoc('sr', '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[1]/div[1]/div/span/span[1]/span/span[1]')
         self.tryInsert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[1]/div[2]/div/input', self.nombre)
         self.tryInsert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[1]/div[1]/div[3]/div/input', self.apellido)
@@ -259,14 +270,17 @@ class Portas:
         else:
             self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[2]/div[2]/div[1]/div/div/div[1]/span/span/input')
         self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/input[2]')
-
+        self.portas.waitExist('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div/div[1]/div[2]/div/span/span[1]/span/span[1]')
+        self.pagina = 4
         self.poliedro.tipoDoc('al', '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div/div[1]/div[2]/div/span/span[1]/span/span[1]')
         self.poliedro.tipoDoc('w', '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div/div[1]/div[3]/div/span/span[1]/span/span[1]')
         self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[2]')
+        self.portas.waitExist('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[2]')
+        self.pagina = 5
         self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[2]')
         optionsFinal = [
             ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/strong/strong/div/div/div/p/text()[2]'],
-            ['/html/body/div/strong/strong/div[2]/div[1]/div/button[2]'],
+            ['/html/body/div/strong/strong/div[3]/div[1]/div/button[2]'],
         ]
         functionListFinal = [
             self.errorTamañoDireccion,
@@ -282,13 +296,14 @@ class Portas:
         raise('error general')
     
     def terminarPorta(self):
-        self.portas.click('/html/body/div/strong/strong/div[2]/div[1]/div/button[2]')
+        self.pagina = 6
+        self.portas.click('/html/body/div/strong/strong/div[3]/div[1]/div/button[2]')
         self.msisdn = self.portas.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/div/fieldset[3]/div/div/strong')
         print(self.msisdn)
         self.excel.guardar(self.contador,'MSISDN',self.msisdn, destino='src\portas\portabilidad.xlsx')
         elapsed_time = time.time() - self.start_time
         self.excel.guardar(self.contador,'MENSAJE',str(round(elapsed_time,2)), destino='src\portas\portabilidad.xlsx')
-        self.poliedro.reinicio()
+        self.reinicio()
         self.contador += 1
 
     def errorTamañoDireccion(self):
@@ -302,5 +317,34 @@ class Portas:
         self.ventana_informacion.write(f'{self.min} {validado}')
         self.excel.guardar(self.contador, 'MENSAJE', validado, destino='src\portas\portabilidad.xlsx')
         self.excel.guardar(self.contador,'MSISDN','error', destino='src\portas\portabilidad.xlsx')
-        self.poliedro.reinicio()
+        self.reinicio()
         self.contador += 1
+    
+    def reinicio(self):
+        try:
+            if self.pagina == 6:
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[1]')
+                time.sleep(2)
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[1]/div[1]/div[1]/div/div/ul/li[1]/span/input')
+            if self.pagina == 5:
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[1]')
+                time.sleep(2)
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[1]')
+                time.sleep(2)
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/input[1]')
+                time.sleep(2)
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[1]')
+            if self.pagina == 4:
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[1]')
+                time.sleep(2)
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/input[1]')
+                time.sleep(2)
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[1]')
+            if self.pagina == 3:
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/input[1]')
+                time.sleep(2)
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[1]')
+            if self.pagina == 2:
+                self.portas.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[1]')
+        except:
+            self.poliedro.reinicio()

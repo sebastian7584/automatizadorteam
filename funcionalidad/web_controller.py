@@ -124,13 +124,15 @@ class Web_Controller:
         self.browser.get(link)
     
     @validate
-    def insert(self, byStr, text, by='xpath'):
+    def insert(self, byStr, text, by='xpath', enter =False):
         if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
         elif by == "id": find = self.browser.find_element_by_id(byStr)
         elif by == "name": find = self.browser.find_element_by_name(byStr)
         else: find =None
         if find is not None:
             find.send_keys(text)
+            if enter:
+                find.send_keys(Keys.ENTER)
 
     @validate
     def select(self, byStr, text, by='xpath'):
@@ -265,4 +267,4 @@ class Web_Controller:
     def cerrar(self):
         self.browser.quit()
 
-# ejempo = Web_Controller(0).edgedriver()
+ejempo = Web_Controller(0).edgedriver()
