@@ -9,10 +9,12 @@ import time
 import tkinter as tk
 import customtkinter as ctk
 
+
 class Portas:
 
-    def __init__(self, master, on_of):
+    def __init__(self, master, on_of, alertas):
         self.pagina = ''
+        self.alertas = alertas
         self.on_of = on_of
         self.errorCorreo=False
         self.master = master
@@ -26,7 +28,8 @@ class Portas:
         self.time = tk.StringVar()
         self.time.set('1.5')
         self.master = master
-        
+        boton = botones.Buttons()
+        color = colors.Colors()
         self.checkbox = checkbox.Checkbox()
         self.checkbox2 = checkbox.Checkbox()
         self.checkbox_var = tk.BooleanVar()
@@ -35,6 +38,14 @@ class Portas:
         # self.checkbox_validacionImgs =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Configurar Imagenes.', self.on_checkbox_change_configuracion, self.validacionImgs)
         self.checkbox_festivo = checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Lunes Festivo.', self.on_checkbox_change, self.checkbox_var)
         self.checkbox_tropas =  checkbox.Checkbox().create_checkbox(self.submenu.submenu, 'Tropas.', self.on_checkbox_change_tropas, self.tropas)
+        self.repeticiones = '1'
+        self.repeticionesEdit = tk.StringVar()
+        self.repeticionesEdit.set(self.repeticiones)
+        self.titulo = label.Label().create_label(self.submenu.submenu, 'Ciclos', 0.0, 0.78, 0.5,0.05, letterSize= 16)
+        input_widget3 = ctk.CTkEntry(self.submenu.submenu, textvariable=self.repeticionesEdit)
+        input_widget3.place(relx=0.5, rely=0.79, relheight=0.05, relwidth=0.2)
+        self.okBotton3 = boton.create_button(self.submenu.submenu, 'OK', 0.7, 0.79, 0.15, 0.05, self.cambioCiclos)
+        self.okBotton3.configure(fg_color= color.team, text_color= 'white')
         
     def on_checkbox_change(self):
         if self.checkbox_var.get():
@@ -48,7 +59,11 @@ class Portas:
         else:
             self.ventana_informacion.write('Cambiando modalidad a Estandar')
         self.poliedro.manejoTropas(self.tropas.get())
-   
+    
+    def cambioCiclos(self):
+        self.repeticiones = self.repeticionesEdit.get()
+        self.ventana_informacion.write(f'Numero de repeticiones configurado en {self.repeticiones}')
+
     
     def abrir_excel(self):
         self.ventana_informacion.write('excel portabilidad abierto recuerde cerrar antes de iniciar')
@@ -89,13 +104,16 @@ class Portas:
             self.poliedro.seleccionAcceso('290')
             self.excel.leer_excel('src\portas\portabilidad.xlsx','CC CLIENTE')
             self.excel.quitarFormatoCientifico('SERIAL')
-            self.ciclo = True
-            self.contador = 0
-            self.iteraciones()
+            for i in range(int(self.repeticiones)):
+                self.ciclo = True
+                self.contador = 0
+                self.iteraciones()
             self.ventana_informacion.write('Proceso terminado')
             self.on_of(True)
         except Exception as e:
             self.ventana_informacion.write(f'se detiene el programa error: {e}')
+            
+            self.alertas('se detiene el programa error')
             raise('se detiene el programa')
         
 
@@ -155,7 +173,7 @@ class Portas:
                 try:
                     self.portas.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[4]/div/input', self.iccid2)
                     minpre = False
-                except: minpre = True
+                except: minpre = False
             else:
                 try:
                     self.portas.waitExist('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[4]/div/input', write=True)
@@ -163,7 +181,7 @@ class Portas:
                 except: minpre = False
             if minpre: 
                 self.captarError('','Se necesita Min preactivado')
-                raise('Se necesita Min preactivado')
+                # raise('Se necesita Min preactivado')
             else:
                 self.poliedro.tipoDoc(self.tipo, '/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[1]/div/span/span[1]/span/span[1]')
                 primerFormulario = [

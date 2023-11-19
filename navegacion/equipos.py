@@ -28,6 +28,14 @@ class Equipos:
         color = colors.Colors()
         self.okBotton = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.73, 0.15, 0.05, self.cambioIntervalo)
         self.okBotton.configure(fg_color= color.team, text_color= 'white')
+        self.repeticiones = '1'
+        self.repeticionesEdit = tk.StringVar()
+        self.repeticionesEdit.set(self.repeticiones) 
+        self.titulo = label.Label().create_label(self.menu.submenu, 'Ciclos', 0.0, 0.78, 0.5,0.05, letterSize= 16)
+        input_widget3 = ctk.CTkEntry(self.menu.submenu, textvariable=self.repeticionesEdit)
+        input_widget3.place(relx=0.5, rely=0.79, relheight=0.05, relwidth=0.2)
+        self.okBotton3 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.79, 0.15, 0.05, self.cambioCiclos)
+        self.okBotton3.configure(fg_color= color.team, text_color= 'white')
        
         
     
@@ -43,6 +51,10 @@ class Equipos:
     def cambioCorreo(self):
         self.correo = self.correoEdit.get()
         self.ventana_informacion.write(f'Correo actualizado por {self.correo}')
+    
+    def cambioCiclos(self):
+        self.repeticiones = self.repeticionesEdit.get()
+        self.ventana_informacion.write(f'Numero de repeticiones configurado en {self.repeticiones}')
     
     def abrir_pagina(self):
         self.ventana_informacion.write('Navegador abierto')
@@ -63,15 +75,27 @@ class Equipos:
         self.excel.leer_excel('src\equipos\equipos.xlsx','Iccid')
         self.excel.quitarFormatoCientifico('Iccid')
         self.excel.quitarFormatoCientifico('Imei')
-        self.ciclo = True
-        self.contador = 0
+        for i in range(int(self.repeticiones)):
+            self.contador = 0
+            self.ciclo = True
+            self.ventana_informacion.write(f'Inicio ciclo {i}')
 
-        while self.ciclo:
-            if self.contador == self.excel.cantidad:
-                self.ciclo = False
-            else:
-                self.mensaje = ''
-                self.EquiposInd()
+            while self.ciclo:
+                if self.contador == self.excel.cantidad:
+                    self.ciclo = False
+                else:
+                    try:
+                        min = str(self.excel.excel['Min'][self.contador])
+                        if str(min) == 'nan' or str(min) == '':
+                            self.mensaje = ''
+                            self.EquiposInd()
+                        else:
+                            self.ventana_informacion.write(f'ya procesada')
+                            self.contador += 1
+                    except:
+                        self.poliedro.reinicio()
+                        self.contador += 1
+            self.ventana_informacion.write(f'ciclo {i} terminado')
         self.ventana_informacion.write('Proceso terminado')
         self.on_of(True)
     
@@ -118,11 +142,14 @@ class Equipos:
         self.vLista = ""
         self.vEquipo = ""
         self.vRegion = ""
-        self.equipos.click('btnNext', 'id')
-        self.equipos.click('btnNext', 'id')
+        self.equipos.click('btnNext', 'id')#/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[3]
+        self.equipos.click('btnNext', 'id')#/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[2]
+        try:
+            self.equipos.click('btnNext', 'id')#/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[2]
+        except:pass
         self.equipos.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div/div[1]/div[3]/div/span/span[1]/span/span[1]')
         self.equipos.click('/html/body/span/span/span[2]/ul/li[2]')
-        self.equipos.click('btnNext', 'id')
+        self.equipos.click('btnNext', 'id')#/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[2]
         self.equipos.click('btnNext', 'id')
         self.min = self.equipos.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/strong/strong/div/div/div/p/strong[2]')
             
@@ -136,6 +163,7 @@ class Equipos:
         self.vEquipo = ""
         self.vRegion = ""
         self.min = ""
+        self.mensaje = self.equipos.readNoValidate('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[4]/ul/li')
 
     def error2(self):
         self.mensaje = 'No deja preactivar por seriales en uso o principal'

@@ -1,6 +1,6 @@
 from navegacion import sub_menu as sm, ventana_informacion
 from recursos import  label, botones, colors
-from funcionalidad import  web_controller, poliedro, excel, scraping
+from funcionalidad import  web_controller, excel, scraping
 from subprocess import Popen
 import threading
 import tkinter as tk

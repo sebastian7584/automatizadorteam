@@ -30,13 +30,37 @@ class Preactivador:
         color = colors.Colors()
         self.okBotton = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.73, 0.15, 0.05, self.cambioIntervalo)
         self.okBotton.configure(fg_color= color.team, text_color= 'white')
-        self.correo = 'cjgomez@teamcomunicaciones.com'
+        # self.correo = 'correo'
+        # self.correoEdit = tk.StringVar()
+        # self.correoEdit.set(self.correo) 
+        # input_widget2 = ctk.CTkEntry(self.menu.submenu, textvariable=self.correoEdit)
+        # input_widget2.place(relx=0.15, rely=0.89, relheight=0.05, relwidth=0.7)
+        # self.okBotton2 = boton.create_button(self.menu.submenu, 'confirmar', 0.3, 0.95, 0.40, 0.05, self.cambioCorreo)
+        # self.okBotton2.configure(fg_color= color.team, text_color= 'white')
+
+        self.cedula = 'cedula'
+        self.cedulaEdit = tk.StringVar()
+        self.cedulaEdit.set(self.cedula) 
+        input_widget3 = ctk.CTkEntry(self.menu.submenu, textvariable=self.cedulaEdit)
+        input_widget3.place(relx=0.1, rely=0.79, relheight=0.05, relwidth=0.5)
+        self.okBotton3 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.79, 0.15, 0.05, self.cambioCedula)
+        self.okBotton3.configure(fg_color= color.team, text_color= 'white')
+
+        self.correo = 'correo'
         self.correoEdit = tk.StringVar()
         self.correoEdit.set(self.correo) 
         input_widget2 = ctk.CTkEntry(self.menu.submenu, textvariable=self.correoEdit)
-        input_widget2.place(relx=0.15, rely=0.89, relheight=0.05, relwidth=0.7)
-        self.okBotton2 = boton.create_button(self.menu.submenu, 'confirmar', 0.3, 0.95, 0.40, 0.05, self.cambioCorreo)
+        input_widget2.place(relx=0.1, rely=0.85, relheight=0.05, relwidth=0.5)
+        self.okBotton2 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.85, 0.15, 0.05, self.cambioCorreo)
         self.okBotton2.configure(fg_color= color.team, text_color= 'white')
+
+        self.nit = 'nit o cc'
+        self.nitEdit = tk.StringVar()
+        self.nitEdit.set(self.nit) 
+        input_widget1 = ctk.CTkEntry(self.menu.submenu, textvariable=self.nitEdit)
+        input_widget1.place(relx=0.1, rely=0.91, relheight=0.05, relwidth=0.5)
+        self.okBotton1 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.91, 0.15, 0.05, self.cambioNit)
+        self.okBotton1.configure(fg_color= color.team, text_color= 'white')
        
         
     
@@ -44,6 +68,14 @@ class Preactivador:
         self.ventana_informacion.write('excel preactivador abierto recuerde cerrar antes de iniciar')
         p = Popen("src\preactivador\openExcel.bat")
         stdout, stderr = p.communicate()
+    
+    def cambioCedula(self):
+        self.cedula = self.cedulaEdit.get()
+        self.ventana_informacion.write(f'Cedula actualizada por {self.cedulaEdit.get()}')
+    
+    def cambioNit(self):
+        self.nit = self.nitEdit.get()
+        self.ventana_informacion.write(f'Nit actualizada por {self.nitEdit.get()}')
     
     def cambioIntervalo(self):
         self.preactivador.actualizarIntervalo(self.time.get())
@@ -97,20 +129,14 @@ class Preactivador:
         try:
             self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[1]/div/span/span[1]/span/span[1]')
             self.preactivador.click('/html/body/span/span/span[2]/ul/li[3]')
-            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[2]/div/input', '900206401')
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[2]/div/input', self.nit)
             self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[1]/div/span/span[1]/span/span[1]')
             self.preactivador.click('/html/body/span/span/span[2]/ul/li[2]')
             self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[4]/div[3]/div/input', self.iccid)
-            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', '1010014821')
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', self.cedula)
             self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[5]/input[1]')
-            self.preactivador.waitExist('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[1]')
-            optionsList = [
-                ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[6]/div/span'],
-            ]
-            funcionList = [
-                self.terminarActivacion
-            ]
-            self.poliedro.detectOption(optionsList, funcionList, NoneFunc=self.errorValidacion)
+            self.poliedro.detectOption([['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[4]/ul/li']], [self.errorPrincipal], NoneFunc=self.siguiente)
+            
 
 
 
@@ -118,11 +144,25 @@ class Preactivador:
             self.ventana_informacion.write(f'Activacion erronea de equipo {self.iccid}')
             self.poliedro.reinicio()
             self.contador += 1
-        time.sleep(0.5)
-        self.ventana_informacion.write(f'Activacion exitosa de equipo {self.iccid}')
-        self.guardarData()
+    
+    def siguiente(self):
+        self.preactivador.waitExist('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[7]/input[1]')
+        optionsList = [
+            ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[6]/div/span'],
+        ]
+        funcionList = [
+            self.terminarActivacion
+        ]
+        self.poliedro.detectOption(optionsList, funcionList, NoneFunc=self.errorValidacion)
+    
+    def errorPrincipal(self):
+        self.ventana_informacion.write(f'Activacion erronea de equipo {self.iccid}')
         self.poliedro.reinicio()
         self.contador += 1
+        self.min = ''
+        self.mensaje = self.preactivador.readNoValidate('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[4]/ul/li')
+        self.guardarData()
+        
 
     def errorValidacion(self):
         self.ventana_informacion.write(f'Activacion erronea de equipo {self.iccid}')
@@ -142,23 +182,27 @@ class Preactivador:
         self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[4]/div/input', self.correo)
         time.sleep(2)
         #telefono
-        self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[1]/div/select', 'fijo')
-        time.sleep(2)
-        self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[2]/div/select', '604')
-        time.sleep(2)
-        self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[3]/div/input', '3131234')
-        time.sleep(2)
+        try:
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[1]/div/select', 'fijo')
+            time.sleep(2)
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[2]/div/select', '604')
+            time.sleep(2)
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[1]/div[5]/div[2]/fieldset/div/div[3]/div/input', '3131234')
+            time.sleep(2)
+        except: pass
         #direccion
-        self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[1]/div[1]/select', 'Otras')
-        time.sleep(2)
-        self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[2]/div/input', 'CENTRO')
-        time.sleep(2)
-        self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[3]/div/select','ANTIOQUIA')
-        time.sleep(4)
-        self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[4]/div/select', 'MEDELLIN')
-        time.sleep(2)
-        self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[5]/div/input', 'CENTRO')
-        time.sleep(2)
+        try:
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[1]/div[1]/select', 'Otras')
+            time.sleep(2)
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[2]/div/input', 'CENTRO')
+            time.sleep(2)
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[3]/div/select','ANTIOQUIA')
+            time.sleep(4)
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[4]/div/select', 'MEDELLIN')
+            time.sleep(2)
+            self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div[3]/div[2]/fieldset/div[5]/div/input', 'CENTRO')
+            time.sleep(2)
+        except: pass
         self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[2]')
         #validar si correo no valido
         self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[1]/div/div[2]/div/div[1]/div[2]/div/span/span[1]/span/span[1]')
@@ -170,6 +214,11 @@ class Preactivador:
         self.min = self.preactivador.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/strong/strong/div/div/div/p/strong[3]')
         self.min = self.min[-10:]
         self.mensaje = ''
+        time.sleep(0.5)
+        self.ventana_informacion.write(f'Activacion exitosa de equipo {self.iccid}')
+        self.guardarData()
+        self.poliedro.reinicio()
+        self.contador += 1
         # self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[1]')
         # self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[1]/div[1]/div[1]/div/div/ul/li[1]/span/input')
         # self.preactivador.insert('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[2]/div/div[1]/div/input', '1010014821')

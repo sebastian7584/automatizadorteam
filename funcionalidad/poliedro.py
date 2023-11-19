@@ -16,8 +16,13 @@ class Poliedro:
     def seleccionAcceso(self, opcion):
         # self.link2='https://poliedrodist.comcel.com.co/activaciones/http/REINGENIERIA/pagDispatcherEntradaModernizacion.asp?Site=1'
         # self.browser.selectPage(self.link2)
-        self.browser.click('/html/body/table/tbody/tr[5]/td/table/tbody/tr/td[1]/div[1]/div[1]/div[5]')
-        self.browser.click('/html/body/table/tbody/tr[5]/td/table/tbody/tr/td[1]/div[1]/div[1]/div[6]/div[2]/a')
+        if self.tropas:
+            self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr/td/div/div/div[2]/a')
+            self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr/td/div/div/div[3]/div[5]/a')
+            
+        else:
+            self.browser.click('/html/body/table/tbody/tr[5]/td/table/tbody/tr/td[1]/div[1]/div[1]/div[5]')
+            self.browser.click('/html/body/table/tbody/tr[5]/td/table/tbody/tr/td[1]/div[1]/div[1]/div[6]/div[2]/a')
         self.browser.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[1]/div[1]/div[2]/div/span/span[1]/span/span[1]')
         self.browser.write('/html/body/span/span/span[1]/input', opcion)
         self.browser.write('/html/body/span/span/span[1]/input', Keys.ENTER)
@@ -33,8 +38,10 @@ class Poliedro:
 
         for i in range (campos):
             if len(lista[i]) == 2: lista[i].append('xpath')
-            self.browser.eraseLetter(lista[i][0], 20)
+            self.browser.eraseLetter(lista[i][0], 20, by=lista[i][2])
+            time.sleep(1) 
             self.browser.insert(lista[i][0],lista[i][1],lista[i][2])
+            time.sleep(1) 
     
     def detectOption(self, options, functions, NoneFunc = None):
         self.selectOption = None
@@ -57,7 +64,7 @@ class Poliedro:
         self.browser.click('/html/body/div/div[2]/section/div/div[1]/aside/nav/div[2]/ul/li[10]/a')
         if self.tropas == False:
             if self.legalizador:
-                self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[12]/td[1]/a')
+                self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[13]/td[1]/a')
             else:
                 self.browser.click('/html/body/p/table[2]/tbody/tr[2]/td[1]/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[13]/td[1]/a')
         self.seleccionAcceso(self.opcion)

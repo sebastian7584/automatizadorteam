@@ -43,6 +43,8 @@ class Web_Controller:
         response = requests.get('https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE')
         latest_version = response.text.strip()
         print(latest_version)
+        # latest_version = '119.0.2151.44'
+        # print(latest_version)
 
 
         # URL de descarga del controlador
@@ -267,4 +269,4 @@ class Web_Controller:
     def cerrar(self):
         self.browser.quit()
 
-ejempo = Web_Controller(0).edgedriver()
+# ejempo = Web_Controller(0).edgedriver()

@@ -101,7 +101,7 @@ class Legalizador:
                             self.legalizadorInd()
                     except:
                         self.ventana_informacion.write(f'Siguiente por error en legalizacion de {self.min}')
-                        if f'{len(self.cedula)}' == '9':
+                        if f'{len(self.cedula)}' == '9' and self.tipoDoc != 'nit':
                             self.excel.guardar(self.contador, 'Mensaje', 'error por cedula de 9 digitos')
                         else:
                             self.excel.guardar(self.contador, 'Mensaje', 'error')
@@ -177,6 +177,16 @@ class Legalizador:
         self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[5]/input[2]')
         self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[4]/input[2]')
         self.legalizador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/strong/strong/div/input[2]')
+        activado = True
+        while activado:
+            try:
+                mensaje = self.legalizador.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/strong/strong/div/div/div/p')
+                if 'Solicitud fue enviada satisfactoriamente' in mensaje:
+                    activado = False
+            except:
+                time.sleep(1)
+        #/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/strong/strong/div/div/div/p
+        # Su Solicitud fue enviada satisfactoriamente.
         self.ventana_informacion.write(f'Legalizacion exitosa de {self.min}')
         self.excel.guardar(self.contador, 'Mensaje', 'legalizada')
         self.poliedro.reinicio()
