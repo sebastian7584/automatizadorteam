@@ -93,6 +93,7 @@ class Equipos:
                             self.ventana_informacion.write(f'ya procesada')
                             self.contador += 1
                     except:
+                        self.ventana_informacion.write(f'Activacion erronea de equipo {self.imei}')
                         self.poliedro.reinicio()
                         self.contador += 1
             self.ventana_informacion.write(f'ciclo {i} terminado')
@@ -112,13 +113,13 @@ class Equipos:
             ['DetailProduct_Imei', self.imei, 'id'],
             ['DetailProduct_Iccid', self.iccid, 'id'],
         ]
-        try:
-            self.poliedro.rellenoFormulario(3, primerFormulario)
-            self.equipos.click('btnNext', 'id')
-        except:
-            self.ventana_informacion.write(f'Activacion erronea de equipo {self.imei}')
-            self.poliedro.reinicio()
-            self.contador += 1
+        # try:
+        self.poliedro.rellenoFormulario(3, primerFormulario)
+        self.equipos.click('btnNext', 'id')
+        # except:
+        #     self.ventana_informacion.write(f'Activacion erronea de equipo {self.imei}')
+        #     self.poliedro.reinicio()
+        #     self.contador += 1
         optionsList = [
             ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[6]/div/span'],
             ['/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[4]/ul/li'],
@@ -127,9 +128,7 @@ class Equipos:
             self.validado,
             self.error1
         ]
-        self.poliedro.detectOption(optionsList, funcionList, NoneFunc=self.error2)
-        time.sleep(0.5)
-        self.ventana_informacion.write(f'Activacion exitosa de equipo {self.imei}')
+        self.poliedro.detectOption(optionsList, funcionList, NoneFunc=self.error2, short2=True)
         self.guardarData()
         self.poliedro.reinicio()
         self.contador += 1
@@ -152,6 +151,7 @@ class Equipos:
         self.equipos.click('btnNext', 'id')#/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/input[2]
         self.equipos.click('btnNext', 'id')
         self.min = self.equipos.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/div/div/div/strong/strong/div/div/div/p/strong[2]')
+        self.ventana_informacion.write(f'Activacion exitosa de equipo {self.imei} {self.min}')
             
 
     def error1(self):
@@ -164,6 +164,7 @@ class Equipos:
         self.vRegion = ""
         self.min = ""
         self.mensaje = self.equipos.readNoValidate('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[4]/ul/li')
+        self.ventana_informacion.write(f'{self.mensaje}')
 
     def error2(self):
         self.mensaje = 'No deja preactivar por seriales en uso o principal'
@@ -175,6 +176,7 @@ class Equipos:
         self.vEquipo = self.equipos.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/div[2]/div[6]/div/div/div')
         self.vRegion = self.equipos.read('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div/div[3]/div[2]/div[7]/div/div/div')
         self.min= ""
+        self.ventana_informacion.write(f'{self.mensaje}')
 
     def guardarData(self):
         self.excel.guardar(self.contador, 'Min', self.min, 'src\equipos\equipos.xlsx')

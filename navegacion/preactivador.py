@@ -1,5 +1,5 @@
 from navegacion import sub_menu as sm, ventana_informacion
-from recursos import  label, botones, colors
+from recursos import  label, botones, colors, checkbox
 from funcionalidad import  web_controller, poliedro, excel
 from subprocess import Popen
 import threading
@@ -23,12 +23,12 @@ class Preactivador:
         self.preactivador = ''
         self.time = tk.StringVar()
         self.time.set('0')
-        self.titulo = label.Label().create_label(self.menu.submenu, 'Intervalos', 0.0, 0.65, 0.5,0.2, letterSize= 16)
+        self.titulo = label.Label().create_label(self.menu.submenu, 'Intervalos', 0.0, 0.60, 0.5,0.2, letterSize= 16)
         input_widget = ctk.CTkEntry(self.menu.submenu, textvariable=self.time)
-        input_widget.place(relx=0.5, rely=0.73, relheight=0.05, relwidth=0.2)
+        input_widget.place(relx=0.5, rely=0.68, relheight=0.05, relwidth=0.2)
         boton = botones.Buttons()
         color = colors.Colors()
-        self.okBotton = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.73, 0.15, 0.05, self.cambioIntervalo)
+        self.okBotton = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.68, 0.15, 0.05, self.cambioIntervalo)
         self.okBotton.configure(fg_color= color.team, text_color= 'white')
         # self.correo = 'correo'
         # self.correoEdit = tk.StringVar()
@@ -42,26 +42,35 @@ class Preactivador:
         self.cedulaEdit = tk.StringVar()
         self.cedulaEdit.set(self.cedula) 
         input_widget3 = ctk.CTkEntry(self.menu.submenu, textvariable=self.cedulaEdit)
-        input_widget3.place(relx=0.1, rely=0.79, relheight=0.05, relwidth=0.5)
-        self.okBotton3 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.79, 0.15, 0.05, self.cambioCedula)
+        input_widget3.place(relx=0.1, rely=0.74, relheight=0.05, relwidth=0.5)
+        self.okBotton3 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.74, 0.15, 0.05, self.cambioCedula)
         self.okBotton3.configure(fg_color= color.team, text_color= 'white')
 
         self.correo = 'correo'
         self.correoEdit = tk.StringVar()
         self.correoEdit.set(self.correo) 
         input_widget2 = ctk.CTkEntry(self.menu.submenu, textvariable=self.correoEdit)
-        input_widget2.place(relx=0.1, rely=0.85, relheight=0.05, relwidth=0.5)
-        self.okBotton2 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.85, 0.15, 0.05, self.cambioCorreo)
+        input_widget2.place(relx=0.1, rely=0.80, relheight=0.05, relwidth=0.5)
+        self.okBotton2 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.80, 0.15, 0.05, self.cambioCorreo)
         self.okBotton2.configure(fg_color= color.team, text_color= 'white')
 
         self.nit = 'nit o cc'
         self.nitEdit = tk.StringVar()
         self.nitEdit.set(self.nit) 
         input_widget1 = ctk.CTkEntry(self.menu.submenu, textvariable=self.nitEdit)
-        input_widget1.place(relx=0.1, rely=0.91, relheight=0.05, relwidth=0.5)
-        self.okBotton1 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.91, 0.15, 0.05, self.cambioNit)
+        input_widget1.place(relx=0.1, rely=0.86, relheight=0.05, relwidth=0.5)
+        self.okBotton1 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.86, 0.15, 0.05, self.cambioNit)
         self.okBotton1.configure(fg_color= color.team, text_color= 'white')
+        
+        self.tropas = tk.BooleanVar()
+        self.checkbox_tropas =  checkbox.Checkbox().create_checkbox(self.menu.submenu, 'Tropas.', self.on_checkbox_change_tropas, self.tropas)
        
+    def on_checkbox_change_tropas(self):
+        if self.tropas.get():
+            self.ventana_informacion.write('Cambiando modalidad a Tropas')
+        else:
+            self.ventana_informacion.write('Cambiando modalidad a Estandar')
+        self.poliedro.manejoTropas(self.tropas.get())
         
     
     def abrir_excel(self):

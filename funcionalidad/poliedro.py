@@ -43,12 +43,15 @@ class Poliedro:
             self.browser.insert(lista[i][0],lista[i][1],lista[i][2])
             time.sleep(1) 
     
-    def detectOption(self, options, functions, NoneFunc = None):
+    def detectOption(self, options, functions, NoneFunc = None, short2 = False):
         self.selectOption = None
         for i in range (len(options)):
             if len(options[i]) == 1: options[i].append('xpath')
             try:
-                self.browser.readShort(options[i][0], options[i][1])
+                if short2:
+                    self.browser.readShort2(options[i][0], options[i][1])
+                else:
+                    self.browser.readShort(options[i][0], options[i][1])
                 self.selectOption = i
                 break
             except:

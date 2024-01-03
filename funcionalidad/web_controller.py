@@ -101,15 +101,51 @@ class Web_Controller:
                         raise('Excedio el numero de intentos')
         return execute
     
+    def validateShort2(funcion):
+        def execute(self,*args, **kwargs):
+            proof = True
+            contador = 1
+            while proof:
+                try:
+                    data = funcion(self,*args, **kwargs)
+                    proof= False
+                    time.sleep(int(sleep))
+                    return data
+                except:
+                    if contador < 5:
+                        print(f'intento numero {contador}')
+                        time.sleep(1)
+                        contador +=1
+                    else:
+                        raise('Excedio el numero de intentos')
+        return execute
+    
+    def openEdgeModeExplorer(self):
+        options = webdriver.IeOptions()
+        # options.file_upload_dialog_timeout = 2000
+        # options.set_capability("silent", True)
+        # options.add_argument('-private')
+        
+        driver = webdriver.Ie(options=options)
+
+        # Navegar para Url
+        driver.get("http://www.google.com")
+
+        driver.quit()
+    
     def openChrome(self):
         service = ChromeService('chromedriver')
         options =  webdriver.ChromeOptions()
         self.browser = webdriver.Chrome(chrome_options= options)
     
-    def openEdge(self):
+    def openEdge(self, headless = False):
         options = EdgeOptions()
         options.use_chromium = True
         options.add_argument("start-maximized")
+        if headless:
+            options.add_argument("--headless=new")
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
         self.browser = Edge(executable_path='msedgedriver.exe', options=options)
         self.browserOriginal = self.browser
     
@@ -154,6 +190,15 @@ class Web_Controller:
         else: find =None
         if find is not None:
             find.click()
+    
+    @validateShort2
+    def readShort2(self, byStr, by='xpath'):
+        if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
+        elif by == "id": find = self.browser.find_element_by_id(byStr)
+        elif by == "name": find = self.browser.find_element_by_name(byStr)
+        if find is not None:
+            return find.text
+        else: return "none"
     
     @validateShort
     def readShort(self, byStr, by='xpath'):
@@ -261,6 +306,14 @@ class Web_Controller:
             else:
                 return False
         else: return None
+    
+    def selectDown(self, byStr, by='xpath'):
+        if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
+        elif by == "id": find = self.browser.find_element_by_id(byStr)
+        elif by == "name": find = self.browser.find_element_by_name(byStr)
+        if find is not None:
+            find.send_keys(Keys.ARROW_DOWN)
+            find.send_keys(Keys.ENTER)
 
     
     def browserGet(self):

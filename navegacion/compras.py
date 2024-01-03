@@ -61,7 +61,7 @@ class Compras:
         self.ventana_informacion.write('Navegador abierto')
         class Abrir_pagina1(web_controller.Web_Controller):pass
         self.compras = Abrir_pagina1(0)
-        self.compras.openEdge()
+        self.compras.openEdge(headless=True)
         self.compras.selectPage(self.link)
         self.compras.click('details-button','id')
         self.compras.click('proceed-link','id')
@@ -159,27 +159,55 @@ class Compras:
                     except:pass
                     self.abrirPagina()
                     self.compras.selectPage(self.link3)
-                    porcentaje = ((contador2+1)/ int(self.cantidadFacturas))*100
-                    self.ventana_informacion.write(f'Obteniendo Seriales {round(porcentaje,2)}%')
-                    numeroFatura = factura[0]
-                    self.compras.insert('text_Factura', numeroFatura, 'id')
-                    self.compras.click('/html/body/form/table/tbody/tr/td/table/tbody/tr[2]/td[2]/input')
-                    html = self.compras.retornarHtml()
-                    soup = scraping.Scraping(html)
-                    data = soup.extrarDataTablas()
-                    empezar = False
-                    detalles = []
-                    for dato in data:
-                        if '# Posición.' in dato[0] and len(dato)==3:
-                            empezar = True
-                            continue
-                        if 'Total registros:' in dato[0]:
-                            empezar=False
-                            continue
-                        if empezar:
-                            if 'FACTURA OK' in dato[1]:
+                    try:
+                        porcentaje = ((contador2+1)/ int(self.cantidadFacturas))*100
+                        self.ventana_informacion.write(f'Obteniendo Seriales {round(porcentaje,2)}%')
+                        numeroFatura = factura[0]
+                        self.compras.insert('text_Factura', numeroFatura, 'id')
+                        self.compras.click('/html/body/form/table/tbody/tr/td/table/tbody/tr[2]/td[2]/input')
+                        html = self.compras.retornarHtml()
+                        soup = scraping.Scraping(html)
+                        data = soup.extrarDataTablas()
+                        empezar = False
+                        detalles = []
+                        for dato in data:
+                            if '# Posición.' in dato[0] and len(dato)==3:
+                                empezar = True
                                 continue
-                            detalles.append(dato)
+                            if 'Total registros:' in dato[0]:
+                                empezar=False
+                                continue
+                            if empezar:
+                                if 'FACTURA OK' in dato[1]:
+                                    continue
+                                detalles.append(dato)
+                    except:
+                        try:self.compras.browser.close()
+                        except:pass
+                        self.abrirPagina()
+                        self.compras.selectPage(self.link3)
+                        porcentaje = ((contador2+1)/ int(self.cantidadFacturas))*100
+                        self.ventana_informacion.write(f'Obteniendo Seriales {round(porcentaje,2)}%')
+                        numeroFatura = factura[0]
+                        self.compras.insert('text_Factura', numeroFatura, 'id')
+                        self.compras.click('/html/body/form/table/tbody/tr/td/table/tbody/tr[2]/td[2]/input')
+                        html = self.compras.retornarHtml()
+                        soup = scraping.Scraping(html)
+                        data = soup.extrarDataTablas()
+                        empezar = False
+                        detalles = []
+                        for dato in data:
+                            if '# Posición.' in dato[0] and len(dato)==3:
+                                empezar = True
+                                continue
+                            if 'Total registros:' in dato[0]:
+                                empezar=False
+                                continue
+                            if empezar:
+                                if 'FACTURA OK' in dato[1]:
+                                    continue
+                                detalles.append(dato)
+
 
                 factura.append(detalles)
                 newData[contador2] = factura

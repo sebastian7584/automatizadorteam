@@ -1,6 +1,6 @@
 from tkinter import Canvas
 from recursos import colors, botones, create_frame, label
-from navegacion import revisar_equipos, compras, equipos, legalizador, portas, preactivador, consulta_seriales
+from navegacion import revisar_equipos, compras, equipos, legalizador, portas, preactivador, consulta_seriales, legalizador_simcard
 import customtkinter as ctk
 from PIL import ImageTk, Image
 
@@ -79,7 +79,7 @@ class App:
         self.button_legalizador = self.button.create_button(self.menu_frame, "LEGALIZADOR", 0.10, 0.50, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.legalizador_frame))
         self.button_portas = self.button.create_button(self.menu_frame, "PORTAS", 0.10, 0.60, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.portas_frame))
         self.button_seriales = self.button.create_button(self.menu_frame, "SERIALES", 0.10, 0.70, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.consulta_seriales_frame))
-        self.button_new = self.button.create_button(self.menu_frame, "LEG. SIMCARD", 0.10, 0.80, 0.8, 0.05, func=None)
+        self.button_legalizador_sims = self.button.create_button(self.menu_frame, "LEG. SIMCARD", 0.10, 0.80, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.legalizador_sims_frame))
         # self.button_comercial = self.button.create_button(self.menu_frame, "COMERCIAL", 0.10, 0.86, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.comercial_frame))
         self.canvas = Canvas(self.menu_frame, bg=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), bd=0.1, highlightbackground = getattr(self.colors,f'separador_{str(ctk.get_appearance_mode())}'))
         self.canvas.place(relwidth=0.01, relheight=1, relx=0.99)
@@ -95,7 +95,9 @@ class App:
         self.button_legalizador.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
         self.button_portas.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
         self.button_seriales.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
-        # self.button_comercial.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
+        self.button_legalizador_sims.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
+        
+    
         for frame in self.interfas_frame.winfo_children():
                 frame.destroy()
         func()
@@ -133,6 +135,11 @@ class App:
     def consulta_seriales_frame(self):
         self.button_seriales.configure(fg_color=self.colors.team, text_color='white')
         consulta_seriales.Consulta_seriales(self.interfas_frame, self.on_of_panel)
+        self.screen = 'consulta_seriales_frame'
+
+    def legalizador_sims_frame(self):
+        self.button_legalizador_sims.configure(fg_color=self.colors.team, text_color='white')
+        legalizador_simcard.Legalizador_sims(self.interfas_frame, self.on_of_panel)
         self.screen = 'consulta_seriales_frame'
 
     # def comercial_frame(self):

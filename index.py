@@ -12,6 +12,6 @@ def alertas(mensaje):
 
 if __name__ == '__main__':
     app = applicacion.App
-    root = app('1080x720', 'Team Comunicaciones', 'version: 1.3.0', alertas)
+    root = app('1080x720', 'Team Comunicaciones', 'version: 1.3.5', alertas)
     root.start()
 

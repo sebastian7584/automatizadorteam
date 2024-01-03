@@ -1,14 +1,3 @@
-'''
-abre poliedro
-consultas
-consulta MSISDN o ICCID
-en el excel o ICCID o IMEI ICCCID --> ultimos 12 digitos 
-consulta segun el que llena
-se abre una sub ventana con la info sale si esta disponible o no
-
-'''
-
-
 from navegacion import sub_menu as sm, ventana_informacion
 from recursos import  label, botones, colors
 from funcionalidad import  web_controller, poliedro, excel
@@ -49,6 +38,7 @@ class Consulta_seriales:
         self.seriales = Abrir_pagina1(int(self.time.get()))
         self.seriales.openEdge()
         self.seriales.selectPage(self.link)
+        # self.seriales.selectPage('https://www.selenium.dev/pt-br/documentation/ie_driver_server/')
 
     def abrir_excel(self):
         self.ventana_informacion.write('excel consultar seriales abierto recuerde cerrar antes de iniciar')
