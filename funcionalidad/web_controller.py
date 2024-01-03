@@ -74,7 +74,7 @@ class Web_Controller:
                     time.sleep(int(float(sleep) + randomTime))
                     return data
                 except Exception as err:
-                    if contador < 30:
+                    if contador < 15:
                         print(f'intento numero {contador} {err}')
                         time.sleep(1)
                         contador +=1
