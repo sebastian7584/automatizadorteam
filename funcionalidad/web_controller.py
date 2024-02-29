@@ -322,4 +322,4 @@ class Web_Controller:
     def cerrar(self):
         self.browser.quit()
 
-# ejempo = Web_Controller(0).edgedriver()
+ejempo = Web_Controller(0).edgedriver()

@@ -54,13 +54,13 @@ class Preactivador:
         self.okBotton2 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.80, 0.15, 0.05, self.cambioCorreo)
         self.okBotton2.configure(fg_color= color.team, text_color= 'white')
 
-        self.nit = 'nit o cc'
-        self.nitEdit = tk.StringVar()
-        self.nitEdit.set(self.nit) 
-        input_widget1 = ctk.CTkEntry(self.menu.submenu, textvariable=self.nitEdit)
-        input_widget1.place(relx=0.1, rely=0.86, relheight=0.05, relwidth=0.5)
-        self.okBotton1 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.86, 0.15, 0.05, self.cambioNit)
-        self.okBotton1.configure(fg_color= color.team, text_color= 'white')
+        # self.nit = 'nit o cc'
+        # self.nitEdit = tk.StringVar()
+        # self.nitEdit.set(self.nit) 
+        # input_widget1 = ctk.CTkEntry(self.menu.submenu, textvariable=self.nitEdit)
+        # input_widget1.place(relx=0.1, rely=0.86, relheight=0.05, relwidth=0.5)
+        # self.okBotton1 = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.86, 0.15, 0.05, self.cambioNit)
+        # self.okBotton1.configure(fg_color= color.team, text_color= 'white')
         
         self.tropas = tk.BooleanVar()
         self.checkbox_tropas =  checkbox.Checkbox().create_checkbox(self.menu.submenu, 'Tropas.', self.on_checkbox_change_tropas, self.tropas)
@@ -134,6 +134,7 @@ class Preactivador:
     def EquiposInd(self):
         self.ventana_informacion.write(f'Activando Equipo {self.contador+1} de {self.excel.cantidad}')
         self.iccid = str(self.excel.excel['Iccid'][self.contador])[-12:] 
+        self.nit = str(self.excel.excel['Nit'][self.contador])
         
         try:
             self.preactivador.click('/html/body/div/div[2]/section/div/div[2]/div[2]/main/form/div[2]/div[1]/div[2]/div[1]/div/span/span[1]/span/span[1]')

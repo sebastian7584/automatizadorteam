@@ -52,8 +52,12 @@ class Compras:
         self.ventana_informacion.write('Empezando ejecuccion')
         self.abrirPagina()
         self.consultarFacturas()
-        self.getFacturasScraping()
-        self.getSerialesScraping()
+        try:
+            self.getFacturasScraping()
+            self.getSerialesScraping()
+        except:
+            self.ventana_informacion.write(f'error, se detiene el programa')
+            raise Exception('error')
         self.organizarData()
         self.on_of(True)
     
@@ -61,7 +65,7 @@ class Compras:
         self.ventana_informacion.write('Navegador abierto')
         class Abrir_pagina1(web_controller.Web_Controller):pass
         self.compras = Abrir_pagina1(0)
-        self.compras.openEdge(headless=True)
+        self.compras.openEdge(headless=False)
         self.compras.selectPage(self.link)
         self.compras.click('details-button','id')
         self.compras.click('proceed-link','id')
