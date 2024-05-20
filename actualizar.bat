@@ -1,5 +1,5 @@
 @echo off
-git stash
+git stash -u
 git pull
 git stash drop
 EXIT
