@@ -1,6 +1,6 @@
 from tkinter import Canvas
 from recursos import colors, botones, create_frame, label
-from navegacion import revisar_equipos, compras, equipos, legalizador, portas, preactivador, consulta_seriales, legalizador_simcard
+from navegacion import revisar_equipos, compras, equipos, legalizador, portas, preactivador, consulta_seriales, legalizador_simcard, inventario_postpago, actualizar_precios
 import customtkinter as ctk
 from PIL import ImageTk, Image
 
@@ -72,9 +72,11 @@ class App:
         self.menu()
     
     def menu(self):
-        self.button_activar_lineas = self.button.create_button(self.menu_frame, "REVISIÓN", 0.10, 0.10, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.revisar_frame))
-        self.button_compras = self.button.create_button(self.menu_frame, "COMPRAS", 0.10, 0.20, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.compras_frame))
-        self.button_equipos = self.button.create_button(self.menu_frame, "EQUIPOS", 0.10, 0.30, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.equipos_frame))
+        self.button_activar_lineas = self.button.create_button(self.menu_frame, "TRIPLETAS", 0.10, 0.0, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.revisar_frame))
+        self.button_compras = self.button.create_button(self.menu_frame, "COMPRAS", 0.10, 0.08, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.compras_frame))
+        self.button_inventario_postpago = self.button.create_button(self.menu_frame, "INV POSTPAGO", 0.10, 0.16, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.inventario_postpago_frame))
+        self.button_actualizar_precios = self.button.create_button(self.menu_frame, "ACT PRECIOS", 0.10, 0.24, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.actualizar_precio__frame))
+        self.button_equipos = self.button.create_button(self.menu_frame, "EQUIPOS", 0.10, 0.32, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.equipos_frame))
         self.button_preactivador = self.button.create_button(self.menu_frame, "PREACTIVADOR", 0.10, 0.40, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.preactivador_frame))
         self.button_legalizador = self.button.create_button(self.menu_frame, "LEGALIZADOR", 0.10, 0.50, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.legalizador_frame))
         self.button_portas = self.button.create_button(self.menu_frame, "PORTAS", 0.10, 0.60, 0.8, 0.05, func= lambda: self.hide_menu_indicators(self.portas_frame))
@@ -90,6 +92,8 @@ class App:
     def hide_menu_indicators(self, func):
         self.button_activar_lineas.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
         self.button_compras.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
+        self.button_inventario_postpago.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
+        self.button_actualizar_precios.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
         self.button_equipos.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
         self.button_preactivador.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
         self.button_legalizador.configure(fg_color=getattr(self.colors,f'fondo_{str(ctk.get_appearance_mode())}'), text_color=getattr(self.colors,f'text_{str(ctk.get_appearance_mode())}'))
@@ -110,6 +114,16 @@ class App:
     def compras_frame(self):
         self.button_compras.configure(fg_color=self.colors.team, text_color='white')
         compras.Compras(self.interfas_frame, self.on_of_panel)
+        self.screen = 'gestion_humana_frame'
+    
+    def inventario_postpago_frame(self):
+        self.button_inventario_postpago.configure(fg_color=self.colors.team, text_color='white')
+        inventario_postpago.Inventario_postpago(self.interfas_frame, self.on_of_panel)
+        self.screen = 'gestion_humana_frame'
+    
+    def actualizar_precio__frame(self):
+        self.button_actualizar_precios.configure(fg_color=self.colors.team, text_color='white')
+        actualizar_precios.Actualizar_precios(self.interfas_frame, self.on_of_panel)
         self.screen = 'gestion_humana_frame'
 
     def equipos_frame(self):

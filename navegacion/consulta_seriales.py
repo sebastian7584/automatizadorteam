@@ -20,7 +20,8 @@ class Consulta_seriales:
         self.link2='https://poliedrodist.comcel.com.co/activaciones/http/REINGENIERIA/pagDispatcherEntradaModernizacion.asp?Site=1'
         self.titulo = label.Label().create_label(master, 'CONSULTA DE SERIALES', 0.2, 0.0, 0.5,0.2, letterSize= 25)
         self.ventana_informacion =  ventana_informacion.Ventana_informacion(master)
-        self.menu = sm.Sub_menu(master,3, boton1=['ABRIR LISTA', self.abrir_excel], boton2=['ABRIR PAGINA', self.abrir_pagina], boton3=['START', self.ejecuccionHilo])
+        # self.menu = sm.Sub_menu(master,3, boton1=['ABRIR LISTA', self.abrir_excel], boton2=['ABRIR PAGINA', self.abrir_pagina], boton3=['START', self.ejecuccionHilo])
+        self.menu = sm.Sub_menu(master,1, boton1=['START', self.ejecuccionHilo])
         self.seriales = ''
         self.time = tk.StringVar()
         self.time.set('0')
@@ -31,6 +32,14 @@ class Consulta_seriales:
         # color = colors.Colors()
         # self.okBotton = boton.create_button(self.menu.submenu, 'OK', 0.7, 0.73, 0.15, 0.05)
         # self.okBotton.configure(fg_color= color.team, text_color= 'white')
+        self.serial1= tk.StringVar()
+        self.serial2 = tk.StringVar()
+        self.title_serial1 = label.Label().create_label(self.menu.submenu, 'Inicio: ', 0.0, 0.18, 0.3,0.2, letterSize= 14)
+        self.title_serial2 = label.Label().create_label(self.menu.submenu, 'Final: ', 0.0, 0.32, 0.25,0.05, letterSize= 14)
+        input_serial1= ctk.CTkEntry(self.menu.submenu, textvariable=self.serial1)
+        input_serial1.place(relx=0.4, rely=0.25, relheight=0.05, relwidth=0.6)
+        input_serial2= ctk.CTkEntry(self.menu.submenu, textvariable=self.serial2)
+        input_serial2.place(relx=0.4, rely=0.32, relheight=0.05, relwidth=0.6)
     
     def abrir_pagina(self):
         self.ventana_informacion.write('Navegador abierto')
@@ -48,19 +57,30 @@ class Consulta_seriales:
     def ejecuccionHilo(self):
         hilo_equipos = threading.Thread(target=self.ejecuccion)
         hilo_equipos.start()
+
+    def ejecuccion(self):  
+        df = pd.DataFrame(columns=['seriales'])
+        for i in range(int(self.serial1.get()), int(self.serial2.get())+1):
+            df.loc[len(df)] = [f'{i}']
+            self.ventana_informacion.write(f'Generando serial {i}')
+            
+        nombre_archivo = 'src\consulta_seriales\seriales.xlsx'
+        df.to_excel(nombre_archivo, index=False)
+        self.abrir_excel()
+        
     
-    def ejecuccion(self):
-        self.on_of(False)
-        self.ventana_informacion.write('Empezando ejecuccion')
-        self.poliedro.definirBrowser(self.seriales)
-        self.seriales.click('/html/body/table/tbody/tr[5]/td/table/tbody/tr/td[1]/div[1]/div[13]')
-        self.seriales.click('/html/body/table/tbody/tr[5]/td/table/tbody/tr/td[1]/div[1]/div[14]/div[4]/a')
-        column_types = {'Iccid': 'str', 'Imei': 'str'}
-        self.excel.excel = pd.read_excel('src\consulta_seriales\seriales.xlsx', dtype=column_types)
-        self.excel.cantidad = len(self.excel.excel['Iccid'])
-        self.excel.quitarFormatoCientifico('Iccid')
-        self.excel.quitarFormatoCientifico('Imei')
-        self.individual()
+    # def ejecuccion(self):
+    #     self.on_of(False)
+    #     self.ventana_informacion.write('Empezando ejecuccion')
+    #     self.poliedro.definirBrowser(self.seriales)
+    #     self.seriales.click('/html/body/table/tbody/tr[5]/td/table/tbody/tr/td[1]/div[1]/div[13]')
+    #     self.seriales.click('/html/body/table/tbody/tr[5]/td/table/tbody/tr/td[1]/div[1]/div[14]/div[4]/a')
+    #     column_types = {'Iccid': 'str', 'Imei': 'str'}
+    #     self.excel.excel = pd.read_excel('src\consulta_seriales\seriales.xlsx', dtype=column_types)
+    #     self.excel.cantidad = len(self.excel.excel['Iccid'])
+    #     self.excel.quitarFormatoCientifico('Iccid')
+    #     self.excel.quitarFormatoCientifico('Imei')
+    #     self.individual()
     
     def crearVariablesExcel(self,i):
         self.iccid = str(self.excel.excel['Iccid'][i])[-12:]

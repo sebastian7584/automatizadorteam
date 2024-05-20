@@ -12,7 +12,7 @@ class Revisar_equipos:
         self.on_of = on_of
         self.poliedro = poliedro.Poliedro()
         self.excel = excel.Excel_controller()
-        self.titulo = label.Label().create_label(master, 'REVISAR EQUIPOS LEGALIZADOS', 0.2, 0.0, 0.5,0.2, letterSize=25)
+        self.titulo = label.Label().create_label(master, 'CONSULTA TRIPLETAS KIT PREPAGO', 0.2, 0.0, 0.5,0.2, letterSize=25)
         self.ventana_informacion =  ventana_informacion.Ventana_informacion(master)
         self.menu = sm.Sub_menu(master,3, boton1=['ABRIR LISTA', self.abrir_excel], boton2=['ABRIR PAGINA', self.abrir_pagina], boton3=['START', self.ejecuccionHilo])
         self.link= 'https://poliedrodist.comcel.com.co/'

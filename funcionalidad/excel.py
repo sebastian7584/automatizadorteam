@@ -9,9 +9,12 @@ class Excel_controller:
         if tituloColumna is not None:
             self.cantidad = len(self.excel[tituloColumna])
     
-    def guardar(self, posicion, columna, text, destino ='src\legalizador\legalizador.xlsx'):
-        self.excel[columna][posicion] = text
-        self.excel.to_excel(destino, index=False)
+    def guardar(self, posicion, columna, text, destino ='src\legalizador\legalizador.xlsx', nuevo= False):
+        if nuevo:
+            self.excel.loc[posicion]= {columna: text}
+        else:
+            self.excel[columna][posicion] = text
+            self.excel.to_excel(destino, index=False)
     
     def quitarFormatoCientifico(self, tituloColumna):
         if self.cantidad is not None:

@@ -11,6 +11,7 @@ from io import BytesIO
 from msedge.selenium_tools import Edge, EdgeOptions
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.action_chains import ActionChains
 import random
 
 
@@ -155,7 +156,21 @@ class Web_Controller:
         options.add_argument("start-maximized")
         return Edge(executable_path='msedgedriver.exe', options=options)
 
-    
+    @validateShort2
+    def listarElemetos(self, byStr, by='xpath', click=None):
+        list_data = []
+        if by == "xpath": find = self.browser.find_elements_by_xpath(byStr)
+        elif by == "id": find = self.browser.find_elements_by_id(byStr)
+        elif by == "name": find = self.browser.find_elements_by_name(byStr)
+        if find is not None:
+            for item in find:
+                name = item.text
+                if click is not None:
+                    if name == click:
+                        item.click()
+                        break
+                list_data.append(name)
+        return list_data
 
     @validate
     def selectPage(self,link):
@@ -191,6 +206,29 @@ class Web_Controller:
         if find is not None:
             find.click()
     
+    @validate
+    def click_ctr(self, byStr, by='xpath'):
+        if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
+        elif by == "id": find = self.browser.find_element_by_id(byStr)
+        elif by == "name": find = self.browser.find_element_by_name(byStr)
+        else: find = None
+        if find is not None:
+            ActionChains(self.browser).key_down(Keys.CONTROL).click(find).key_up(Keys.CONTROL).perform()
+    
+    def cambiar_pestaña(self):
+        self.browser.switch_to.window(self.browser.window_handles[-1])
+    
+    def volver_pestaña(self):
+        self.browser.switch_to.window(self.browser.window_handles[0])
+    
+    def cerrar_pestaña(self):
+        self.browser.close()
+    
+    @validateShort2
+    def leer_txt(self):
+        texto_elemento = self.browser.find_element_by_xpath("/html/body/pre")
+        return texto_elemento.text
+
     @validateShort2
     def readShort2(self, byStr, by='xpath'):
         if by == "xpath": find = self.browser.find_element_by_xpath(byStr)
@@ -322,4 +360,4 @@ class Web_Controller:
     def cerrar(self):
         self.browser.quit()
 
-ejempo = Web_Controller(0).edgedriver()
+# ejempo = Web_Controller(0).edgedriver()
